@@ -1,12 +1,14 @@
 import { TestBed } from '@angular/core/testing';
 import { App } from './app';
+import { provideRouter, Router } from '@angular/router';
+import { routes } from './app.routes';
 
 describe('App', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [App],
-    })
-      .compileComponents();
+      providers: [provideRouter(routes)],
+    }).compileComponents();
   });
 
   it('should create the app', () => {
@@ -17,8 +19,10 @@ describe('App', () => {
 
   it('should render title', async () => {
     const fixture = TestBed.createComponent(App);
+    const router = TestBed.inject(Router);
+    await router.navigateByUrl('/');
     await fixture.whenStable();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, PDFLab');
+    expect(compiled.querySelector('h1')?.textContent).toContain('Simple tools for your PDF tasks');
   });
 });

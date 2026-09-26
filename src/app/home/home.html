@@ -1,0 +1,64 @@
+<main
+  class="min-h-dvh w-full bg-surface px-4 pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]"
+>
+  <div class="mx-auto flex w-full max-w-xl flex-col items-center px-1 py-8">
+    <div class="mb-5 flex items-center gap-1 rounded-full bg-surface-container-low px-3 py-1">
+      <span class="size-1.5 shrink-0 rounded-full bg-primary-container" aria-hidden="true"></span>
+      <span class="text-xs leading-4 font-medium tracking-[0.01em] text-secondary"
+        >Fast, secure, client-side processing</span
+      >
+    </div>
+
+    <header class="mb-8 text-center">
+      <h1 class="mb-1 text-[1.375rem] leading-7 font-semibold tracking-[-0.015em]">
+        Simple tools for your PDF tasks
+      </h1>
+      <p class="mx-auto max-w-sm text-sm leading-[1.375rem] text-secondary">
+        Fast, private, and straightforward document utility with zero fluff.
+      </p>
+    </header>
+
+    <section aria-label="PDF tools" class="mb-8 flex w-full flex-col gap-3">
+      <app-tool-card
+        tool="merge"
+        title="Merge PDFs"
+        description="Combine multiple PDF documents into a single organized file in seconds."
+        actionLabel="Select files"
+        (selected)="selectTool($event)"
+      />
+      <app-tool-card
+        tool="delete"
+        title="Delete Pages"
+        description="Remove unwanted pages, blank sheets, or specific extracts from any PDF."
+        actionLabel="Choose PDF"
+        (selected)="selectTool($event)"
+      />
+    </section>
+
+    <div
+      class="mb-8 flex items-center gap-1 rounded-lg bg-surface-container-low px-3 py-2 text-secondary"
+    >
+      <app-icon class="size-4" name="lock" />
+      <p class="text-xs leading-[1.125rem] tracking-[0.005em]">
+        Files never leave your browser. 100% private and client-side.
+      </p>
+    </div>
+
+    <footer class="mt-auto pt-3 text-center">
+      <p class="text-xs leading-4 font-medium tracking-[0.02em] text-outline">
+        © PDF Tools · Simple &amp; Private
+      </p>
+    </footer>
+  </div>
+
+  <div role="status" aria-live="polite" aria-atomic="true">
+    @if (feedback()) {
+      <div
+        class="fixed bottom-[max(1.5rem,env(safe-area-inset-bottom))] left-1/2 z-50 flex w-max max-w-[calc(100%-2rem)] -translate-x-1/2 items-center gap-2 rounded-lg bg-inverse-surface px-4 py-2.5 text-xs leading-4 font-medium text-inverse-on-surface shadow-md"
+      >
+        <span class="size-1.5 shrink-0 rounded-full bg-primary-fixed-dim" aria-hidden="true"></span>
+        <span>{{ feedback() }}</span>
+      </div>
+    }
+  </div>
+</main>
