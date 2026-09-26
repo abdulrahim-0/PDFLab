@@ -1,5 +1,6 @@
 import { Component, input, output } from '@angular/core';
 import { Icon } from '../shared/icon';
+import { ToolCardData } from '../shared/ToolCardData';
 
 @Component({
   selector: 'app-tool-card',
@@ -28,19 +29,20 @@ import { Icon } from '../shared/icon';
           </p>
         </div>
       </div>
-      <button
-        type="button"
-        class="flex h-10 w-full cursor-pointer items-center justify-center gap-1 rounded-lg text-sm leading-5 font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary-container motion-reduce:transition-none"
-        [class]="
-          tool() === 'merge'
-            ? 'bg-primary-container text-white hover:bg-primary active:opacity-90'
-            : 'bg-surface-container-low text-on-surface hover:bg-surface-container active:bg-surface-container-high'
-        "
-        (click)="selected.emit(tool())"
-      >
-        <span>{{ actionLabel() }}</span>
-        <app-icon class="size-4" name="arrow" />
-      </button>
+        <label
+          class="flex h-10 w-full cursor-pointer items-center justify-center gap-1 rounded-lg bg-primary-container text-sm font-medium text-white"
+        >
+          <input
+            class="sr-only"
+            type="file"
+            accept=".pdf"
+            multiple
+            (change)="onFileSelected($event)"
+          />
+
+          <span>{{ actionLabel() }}</span>
+          <app-icon class="size-4" name="arrow" />
+        </label>
     </article>
   `,
 })
@@ -49,5 +51,14 @@ export class ToolCard {
   readonly title = input.required<string>();
   readonly description = input.required<string>();
   readonly actionLabel = input.required<string>();
-  readonly selected = output<'merge' | 'delete'>();
+  readonly selected = output<ToolCardData>();
+
+  protected onFileSelected(event: Event): void {
+  const input = event.target as HTMLInputElement;
+
+  this.selected.emit({
+    tool: this.tool(),
+    files: Array.from(input.files ?? []),
+  });
+}
 }
