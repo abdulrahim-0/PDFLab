@@ -2,6 +2,7 @@
 
 import { baseName, OutputBytes } from '../files/output-file';
 import { zipOutputs } from '../files/zip';
+import { imagesToPdf } from './ops/images-to-pdf';
 import { ProgressFn } from './ops/load';
 import { mergePdfs } from './ops/merge';
 import { organizePdf } from './ops/organize';
@@ -46,6 +47,8 @@ async function runTask(task: PdfTask, onProgress: ProgressFn): Promise<OutputByt
       return rotatePdf(task.file, task.rotations, onProgress);
     case 'organize':
       return organizePdf(task.file, task.order, onProgress);
+    case 'images-to-pdf':
+      return imagesToPdf(task.images, task.options, onProgress);
   }
 }
 

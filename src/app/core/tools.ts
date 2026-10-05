@@ -45,4 +45,13 @@ export const TOOLS: readonly ToolDefinition[] = [
     icon: 'rotate',
     loadComponent: () => import('../features/rotate/rotate').then((m) => m.Rotate),
   },
+  {
+    id: 'images-to-pdf',
+    path: 'jpg-to-pdf',
+    title: 'Images to PDF',
+    description: 'Turn JPG and PNG images into a PDF, one image per page.',
+    icon: 'image',
+    loadComponent: () =>
+      import('../features/images-to-pdf/images-to-pdf').then((m) => m.ImagesToPdf),
+  },
 ];

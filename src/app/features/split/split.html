@@ -26,32 +26,14 @@
   </app-single-pdf-workspace>
 
   <div toolOptions class="flex flex-col gap-4">
-    <fieldset>
-      <legend class="mb-2 text-sm font-semibold">Split mode</legend>
-      <div class="grid grid-cols-2 gap-2">
-        @for (option of modes; track option.value) {
-          <label
-            class="flex cursor-pointer flex-col gap-0.5 rounded-lg border p-3 text-sm has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-primary-container"
-            [class]="
-              mode() === option.value
-                ? 'border-primary-container bg-surface-container-low'
-                : 'border-outline-variant'
-            "
-          >
-            <input
-              class="sr-only"
-              type="radio"
-              name="split-mode"
-              [value]="option.value"
-              [checked]="mode() === option.value"
-              (change)="setMode(option.value)"
-            />
-            <span class="font-medium">{{ option.label }}</span>
-            <span class="text-xs text-secondary">{{ option.hint }}</span>
-          </label>
-        }
-      </div>
-    </fieldset>
+    <app-option-group
+      legend="Split mode"
+      name="split-mode"
+      [columns]="2"
+      [options]="modes"
+      [value]="mode()"
+      (valueChange)="setMode($event)"
+    />
 
     @if (mode() === 'ranges') {
       <div>

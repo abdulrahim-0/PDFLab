@@ -45,7 +45,8 @@ import { Icon } from '../icon';
         {{ label() }}
       </button>
       <p class="text-xs text-secondary">
-        or drop {{ multiple() ? 'files' : 'a file' }} here · up to {{ maxSizeLabel() }} each
+        or drop {{ multiple() ? 'files' : 'a file' }} here · up to {{ maxSizeLabel() }}
+        {{ multiple() ? 'each' : '' }}
       </p>
       <input
         #input

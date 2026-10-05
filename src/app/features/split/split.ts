@@ -3,6 +3,7 @@ import { everyPage, PageRange, parsePageRanges } from '../../core/pdf/page-range
 import { PdfToolError } from '../../core/pdf/pdf-errors';
 import { PdfService } from '../../core/pdf/pdf.service';
 import { FileDropzone } from '../../shared/file-dropzone/file-dropzone';
+import { OptionGroup } from '../../shared/option-group/option-group';
 import { PageGrid } from '../../shared/page-grid/page-grid';
 import { injectSinglePdf } from '../../shared/single-pdf/single-pdf';
 import { SinglePdfWorkspace } from '../../shared/single-pdf/single-pdf-workspace';
@@ -13,7 +14,7 @@ export type SplitMode = 'ranges' | 'every-page';
 
 @Component({
   selector: 'app-split',
-  imports: [FileDropzone, PageGrid, SinglePdfWorkspace, ToolPage],
+  imports: [FileDropzone, OptionGroup, PageGrid, SinglePdfWorkspace, ToolPage],
   templateUrl: './split.html',
 })
 export class Split {

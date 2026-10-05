@@ -1,0 +1,66 @@
+<app-tool-page
+  title="Images to PDF"
+  description="Turn JPG and PNG images into one PDF. Drag to set the page order."
+  processLabel="Convert to PDF"
+  processingLabel="Converting…"
+  [run]="run"
+  [hasFiles]="items().length > 0"
+  (process)="convert()"
+  (startOver)="startOver()"
+>
+  <app-file-dropzone
+    toolUpload
+    kind="image"
+    label="Select images"
+    [maxFiles]="maxImages"
+    (filesAdded)="add($event)"
+  />
+
+  <app-file-list
+    kind="image"
+    [items]="items()"
+    [reorderable]="true"
+    (remove)="remove($event)"
+    (reorder)="reorder($event)"
+  />
+  @if (items().length < maxImages) {
+    <app-file-dropzone
+      class="mt-3"
+      kind="image"
+      label="Add more images"
+      [compact]="true"
+      [maxFiles]="maxImages"
+      [existingCount]="items().length"
+      (filesAdded)="add($event)"
+    />
+  }
+
+  <div toolOptions class="flex flex-col gap-4">
+    <app-option-group
+      legend="Page size"
+      name="page-size"
+      [options]="pageSizes"
+      [value]="pageSize()"
+      (valueChange)="set(pageSize.set, $event)"
+    />
+    @if (pageSize() !== 'fit') {
+      <app-option-group
+        legend="Orientation"
+        name="orientation"
+        [options]="orientations"
+        [value]="orientation()"
+        (valueChange)="set(orientation.set, $event)"
+      />
+    }
+    <app-option-group
+      legend="Margin"
+      name="margin"
+      [options]="margins"
+      [value]="margin()"
+      (valueChange)="set(margin.set, $event)"
+    />
+    <p class="text-xs text-secondary">
+      JPGs are added without re-compression, so photos keep their full quality.
+    </p>
+  </div>
+</app-tool-page>

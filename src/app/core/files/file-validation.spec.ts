@@ -47,6 +47,29 @@ describe('validateFiles', () => {
   });
 });
 
+describe('validateFiles for images', () => {
+  const rules = { kind: 'image' as const, maxFileBytes: 1024 };
+  const jpeg = new Uint8Array([0xff, 0xd8, 0xff, 0xe0, 0, 0x10]);
+  const png = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0]);
+
+  it('accepts JPG and PNG by content', async () => {
+    const files = [
+      new File([jpeg], 'photo.JPG', { type: 'image/jpeg' }),
+      new File([png], 'chart.png'),
+    ];
+    expect((await validateFiles(files, rules)).accepted).toEqual(files);
+  });
+
+  it('rejects other images and mislabelled files', async () => {
+    const gif = new File(['GIF89a'], 'anim.gif', { type: 'image/gif' });
+    const fake = new File(['%PDF-1.7'], 'fake.png', { type: 'image/png' });
+    expect((await validateFiles([gif, fake], rules)).rejected.map((r) => r.reason)).toEqual([
+      'Not a JPG or PNG image.',
+      'Not a valid JPG or PNG image.',
+    ]);
+  });
+});
+
 describe('hasPdfHeader', () => {
   it('finds a header after leading junk', async () => {
     expect(await hasPdfHeader(new Blob(['﻿junk%PDF-1.7']))).toBe(true);

@@ -2,6 +2,7 @@ import { DestroyRef, inject, Injectable, InjectionToken } from '@angular/core';
 import { OutputBytes, OutputFile, toOutputFile } from '../files/output-file';
 import { PageRange } from './page-ranges';
 import { PdfToolError } from './pdf-errors';
+import { ImagesToPdfOptions } from './ops/images-to-pdf';
 import { NamedPdf, ProgressFn } from './ops/load';
 import { PdfTask, PdfWorkerRequest, PdfWorkerResponse } from './pdf-worker-protocol';
 
@@ -66,6 +67,20 @@ export class PdfService {
   ): Promise<OutputFile> {
     const named = await toNamed(file);
     return this.run({ type: 'organize', file: named, order: [...order] }, [named], onProgress);
+  }
+
+  /** One page per image (JPG/PNG), in order. */
+  async imagesToPdf(
+    images: readonly File[],
+    options: ImagesToPdfOptions,
+    onProgress?: ProgressFn,
+  ): Promise<OutputFile> {
+    const named = await Promise.all(images.map(toNamed));
+    return this.run(
+      { type: 'images-to-pdf', images: named, options: { ...options } },
+      named,
+      onProgress,
+    );
   }
 
   /** `inputs` have their buffers transferred to the worker (they become unusable here). */

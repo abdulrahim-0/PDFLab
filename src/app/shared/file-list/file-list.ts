@@ -1,9 +1,10 @@
 import { CdkDrag, CdkDragDrop, CdkDragHandle, CdkDropList } from '@angular/cdk/drag-drop';
 import { Component, effect, inject, input, output, signal } from '@angular/core';
-import { formatBytes } from '../../core/files/file-validation';
+import { FileKind, formatBytes } from '../../core/files/file-validation';
 import { PdfToolError } from '../../core/pdf/pdf-errors';
 import { PdfRenderService } from '../../core/pdf/pdf-render.service';
 import { Icon } from '../icon';
+import { ImageThumbnail } from '../image-thumbnail/image-thumbnail';
 import { PdfThumbnail } from '../pdf-thumbnail/pdf-thumbnail';
 import { FileItem, ReorderEvent } from './file-item';
 
@@ -15,7 +16,7 @@ type PageCount = number | 'loading' | 'encrypted' | 'error';
  */
 @Component({
   selector: 'app-file-list',
-  imports: [CdkDropList, CdkDrag, CdkDragHandle, Icon, PdfThumbnail],
+  imports: [CdkDropList, CdkDrag, CdkDragHandle, Icon, ImageThumbnail, PdfThumbnail],
   host: { class: 'block' },
   template: `
     <ol
@@ -40,14 +41,19 @@ type PageCount = number | 'loading' | 'encrypted' | 'error';
               <app-icon class="size-5" name="grip" />
             </span>
           }
-          <app-pdf-thumbnail class="shrink-0" [file]="item.file" [width]="44" />
+          @if (kind() === 'image') {
+            <app-image-thumbnail class="shrink-0" [file]="item.file" [width]="44" />
+          } @else {
+            <app-pdf-thumbnail class="shrink-0" [file]="item.file" [width]="44" />
+          }
           <div class="min-w-0 flex-1">
             <p class="truncate text-sm font-medium" [title]="item.file.name">
               {{ item.file.name }}
             </p>
             <p class="text-xs text-secondary">
               {{ size(item.file) }}
-              @switch (pageCount(item)) {
+              @switch (kind() === 'image' ? 'image' : pageCount(item)) {
+                @case ('image') {}
                 @case ('loading') {}
                 @case ('encrypted') {
                   · <span class="text-error">Password-protected</span>
@@ -99,6 +105,7 @@ export class FileList {
   private readonly renderer = inject(PdfRenderService);
 
   readonly items = input.required<readonly FileItem[]>();
+  readonly kind = input<FileKind>('pdf');
   readonly reorderable = input(false);
   readonly remove = output<string>();
   readonly reorder = output<ReorderEvent>();
@@ -108,6 +115,9 @@ export class FileList {
 
   constructor() {
     effect(() => {
+      if (this.kind() !== 'pdf') {
+        return;
+      }
       for (const { file } of this.items()) {
         if (!this.pageCounts().has(file)) {
           this.setPageCount(file, 'loading');
