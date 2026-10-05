@@ -1,5 +1,6 @@
 import { decodePDFRawStream, PDFArray, PDFDocument, PDFRawStream } from '@cantoo/pdf-lib';
-import { addPageNumbers, formatPageNumber, PageNumberOptions } from './page-numbers';
+import { formatPageNumber } from '../text-format';
+import { addPageNumbers, PageNumberOptions } from './page-numbers';
 import { makePdf } from './testing';
 
 const options: PageNumberOptions = {

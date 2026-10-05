@@ -1,6 +1,6 @@
 import { degrees, PDFFont, PDFImage, PDFPage, RGB } from '@cantoo/pdf-lib';
-import { normalizeRotation } from './rotate';
 import { originForCenter, Point } from '../placement';
+import { normalizeRotation } from '../rotation';
 
 /**
  * Bridges what the reader sees and PDF user space. A page with /Rotate is

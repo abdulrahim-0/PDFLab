@@ -3,6 +3,7 @@ import { detectImageType } from '../../files/file-validation';
 import { OutputBytes } from '../../files/output-file';
 import { BoxPosition, boxCenter, Point, tileCenters } from '../placement';
 import { PdfToolError } from '../pdf-errors';
+import { isStandardFontText } from '../text-format';
 import { loadPdf, NamedPdf, ProgressFn, savePdf } from './load';
 import { PageSpace } from './page-space';
 
@@ -34,11 +35,6 @@ export interface ImageWatermark extends WatermarkLayout {
 export type Watermark = TextWatermark | ImageWatermark;
 
 const MARGIN = 36;
-
-/** Characters the built-in PDF fonts can draw (Windows-1252). */
-export function isStandardFontText(text: string): boolean {
-  return /^[ -~ -ÿ€‚ƒ„…†‡ˆ‰Š‹ŒŽ‘’“”•–—˜™š›œžŸ]*$/.test(text);
-}
 
 export function hexToRgb(hex: string) {
   const match = /^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(hex);

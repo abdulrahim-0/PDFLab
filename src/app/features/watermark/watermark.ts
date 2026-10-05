@@ -1,10 +1,10 @@
 import { Component, computed, effect, inject, signal } from '@angular/core';
-import {
+import type {
   ImageWatermark,
-  isStandardFontText,
   Watermark as WatermarkSpec,
   WatermarkLayout,
 } from '../../core/pdf/ops/watermark';
+import { isStandardFontText } from '../../core/pdf/text-format';
 import { BoxPosition } from '../../core/pdf/placement';
 import { PdfService } from '../../core/pdf/pdf.service';
 import { rasterizeText } from '../../core/pdf/text-raster';

@@ -1,5 +1,6 @@
 import { Component, computed, inject, linkedSignal, signal } from '@angular/core';
-import { formatPageNumber, NumberFormat, PageNumberOptions } from '../../core/pdf/ops/page-numbers';
+import type { PageNumberOptions } from '../../core/pdf/ops/page-numbers';
+import { formatPageNumber, NumberFormat } from '../../core/pdf/text-format';
 import { BoxPosition } from '../../core/pdf/placement';
 import { PdfService } from '../../core/pdf/pdf.service';
 import { FileDropzone } from '../../shared/file-dropzone/file-dropzone';

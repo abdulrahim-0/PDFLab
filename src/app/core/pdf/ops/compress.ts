@@ -1,7 +1,7 @@
 import { PDFArray, PDFDict, PDFName, PDFNumber, PDFRawStream, PDFRef } from '@cantoo/pdf-lib';
 import { baseName, OutputBytes } from '../../files/output-file';
 import { formatBytes } from '../../files/file-validation';
-import { loadPdf, NamedPdf, ProgressFn } from './load';
+import { dropStaleXrefStreams, loadPdf, NamedPdf, ProgressFn } from './load';
 
 export type CompressionLevel = 'light' | 'balanced' | 'strong';
 
@@ -56,6 +56,7 @@ export async function compressPdf(
     onProgress?.(((index + 1) / images.length) * 0.8);
   }
 
+  dropStaleXrefStreams(doc);
   const data = await doc.save({ useObjectStreams: true });
   onProgress?.(1);
 

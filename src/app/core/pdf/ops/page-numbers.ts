@@ -2,11 +2,11 @@ import { StandardFonts } from '@cantoo/pdf-lib';
 import { OutputBytes } from '../../files/output-file';
 import { BoxPosition, boxCenter } from '../placement';
 import { PdfToolError } from '../pdf-errors';
+import { NumberFormat } from '../text-format';
 import { loadPdf, NamedPdf, ProgressFn, savePdf } from './load';
 import { PageSpace } from './page-space';
 import { hexToRgb } from './watermark';
-
-export type NumberFormat = 'n' | 'page-n' | 'n-of-total' | 'page-n-of-total';
+import { formatPageNumber } from '../text-format';
 
 export interface PageNumberOptions {
   position: BoxPosition;
@@ -19,19 +19,6 @@ export interface PageNumberOptions {
   /** Distance from the page edge, in points. */
   margin: number;
   color: string;
-}
-
-export function formatPageNumber(format: NumberFormat, n: number, total: number): string {
-  switch (format) {
-    case 'n':
-      return `${n}`;
-    case 'page-n':
-      return `Page ${n}`;
-    case 'n-of-total':
-      return `${n} of ${total}`;
-    case 'page-n-of-total':
-      return `Page ${n} of ${total}`;
-  }
 }
 
 export async function addPageNumbers(

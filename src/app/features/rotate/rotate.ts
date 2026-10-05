@@ -1,5 +1,5 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { normalizeRotation } from '../../core/pdf/ops/rotate';
+import { normalizeRotation } from '../../core/pdf/rotation';
 import { PdfService } from '../../core/pdf/pdf.service';
 import { FileDropzone } from '../../shared/file-dropzone/file-dropzone';
 import { Icon } from '../../shared/icon';

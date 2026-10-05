@@ -1,4 +1,4 @@
-import { PDFDocument } from '@cantoo/pdf-lib';
+import { PDFDocument, PDFInvalidObject, PDFName, PDFRawStream } from '@cantoo/pdf-lib';
 import { baseName, OutputBytes } from '../../files/output-file';
 import { corruptError, encryptedError, PdfToolError } from '../pdf-errors';
 
@@ -48,6 +48,33 @@ export async function createPdf(): Promise<PDFDocument> {
   return doc;
 }
 
+/**
+ * pdf-lib keeps a loaded file's cross-reference streams and object-stream
+ * containers and writes them back out. They're dead weight (a fresh table
+ * and fresh object streams are written on save), and after decryption the
+ * old cross-reference stream survives as an unparsed object that still
+ * carries /Encrypt. Drop them all.
+ */
+export function dropStaleXrefStreams(doc: PDFDocument): void {
+  const stale = [PDFName.of('XRef'), PDFName.of('ObjStm')];
+  for (const [ref, object] of doc.context.enumerateIndirectObjects()) {
+    const isStaleStream =
+      object instanceof PDFRawStream &&
+      stale.includes(object.dict.get(PDFName.of('Type')) as PDFName);
+    const isStaleXref =
+      object instanceof PDFInvalidObject && /\/Type\s*\/XRef\b/.test(rawText(object));
+    if (isStaleStream || isStaleXref) {
+      doc.context.delete(ref);
+    }
+  }
+}
+
+function rawText(object: PDFInvalidObject): string {
+  const bytes = new Uint8Array(object.sizeInBytes());
+  object.copyBytesInto(bytes, 0);
+  return new TextDecoder('latin1').decode(bytes);
+}
+
 /** Saves a document as `<source name>-<suffix>.pdf`. */
 export async function savePdf(
   doc: PDFDocument,
@@ -55,6 +82,7 @@ export async function savePdf(
   suffix: string,
 ): Promise<OutputBytes> {
   doc.setProducer('PDFLab');
+  dropStaleXrefStreams(doc);
   return {
     filename: `${baseName(sourceName)}-${suffix}.pdf`,
     mimeType: 'application/pdf',

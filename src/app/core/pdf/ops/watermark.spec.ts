@@ -1,5 +1,6 @@
 import { decodePDFRawStream, degrees, PDFDocument, PDFRawStream } from '@cantoo/pdf-lib';
-import { hexToRgb, isStandardFontText, TextWatermark, watermarkPdf } from './watermark';
+import { isStandardFontText } from '../text-format';
+import { hexToRgb, TextWatermark, watermarkPdf } from './watermark';
 import { makePdf } from './testing';
 
 const PNG = Uint8Array.from(

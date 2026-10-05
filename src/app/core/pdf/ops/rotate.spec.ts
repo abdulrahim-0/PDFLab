@@ -1,5 +1,6 @@
 import { degrees, PDFDocument } from '@cantoo/pdf-lib';
-import { normalizeRotation, rotatePdf } from './rotate';
+import { normalizeRotation } from '../rotation';
+import { rotatePdf } from './rotate';
 import { makePdf } from './testing';
 
 async function rotations(bytes: Uint8Array): Promise<number[]> {

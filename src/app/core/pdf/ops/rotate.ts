@@ -1,12 +1,8 @@
 import { degrees } from '@cantoo/pdf-lib';
 import { OutputBytes } from '../../files/output-file';
 import { PdfToolError } from '../pdf-errors';
+import { normalizeRotation } from '../rotation';
 import { assertPageIndex, loadPdf, NamedPdf, ProgressFn, savePdf } from './load';
-
-/** Wraps any angle into 0, 90, 180 or 270. */
-export function normalizeRotation(angle: number): number {
-  return (((Math.round(angle / 90) * 90) % 360) + 360) % 360;
-}
 
 /**
  * Adds a clockwise rotation to pages, keyed by 0-based page index. Only the

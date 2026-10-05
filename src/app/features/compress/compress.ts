@@ -1,6 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { formatBytes } from '../../core/files/file-validation';
-import { CompressionLevel } from '../../core/pdf/ops/compress';
+import type { CompressionLevel } from '../../core/pdf/ops/compress';
 import { PdfService } from '../../core/pdf/pdf.service';
 import { FileDropzone } from '../../shared/file-dropzone/file-dropzone';
 import { Icon } from '../../shared/icon';

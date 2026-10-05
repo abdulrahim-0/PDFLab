@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import {
+import type {
   ImagesToPdfOptions,
   Margin,
   Orientation,

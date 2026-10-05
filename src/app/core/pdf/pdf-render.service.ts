@@ -1,8 +1,13 @@
 import { DOCUMENT, inject, Injectable } from '@angular/core';
-import type { PDFDocumentProxy } from 'pdfjs-dist';
+import type { PDFDocumentProxy } from 'pdfjs-dist/legacy/build/pdf.mjs';
 import { corruptError, encryptedError, PdfToolError } from './pdf-errors';
 
-type PdfJs = typeof import('pdfjs-dist');
+/**
+ * pdf.js's "legacy" build bundles polyfills for very new JavaScript (e.g.
+ * Math.sumPrecise, used when decrypting and rebuilding fonts). The modern build
+ * fails on current Chrome and Safari for password-protected files.
+ */
+type PdfJs = typeof import('pdfjs-dist/legacy/build/pdf.mjs');
 
 export type ImageFormat = 'jpeg' | 'png';
 
@@ -158,7 +163,7 @@ export class PdfRenderService {
   }
 
   private loadPdfJs(): Promise<PdfJs> {
-    this.pdfjs ??= import('pdfjs-dist').then((pdfjs) => {
+    this.pdfjs ??= import('pdfjs-dist/legacy/build/pdf.mjs').then((pdfjs) => {
       pdfjs.GlobalWorkerOptions.workerPort = new Worker(
         new URL('./pdfjs.worker', import.meta.url),
         { type: 'module' },
