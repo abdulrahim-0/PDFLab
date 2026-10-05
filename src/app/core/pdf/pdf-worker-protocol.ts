@@ -1,4 +1,5 @@
 import { OutputBytes } from '../files/output-file';
+import { CompressionLevel } from './ops/compress';
 import { ImagesToPdfOptions, NamedImage } from './ops/images-to-pdf';
 import { NamedPdf } from './ops/load';
 import { PageNumberOptions } from './ops/page-numbers';
@@ -14,7 +15,8 @@ export type PdfTask =
   | { type: 'images-to-pdf'; images: NamedImage[]; options: ImagesToPdfOptions }
   | { type: 'zip'; files: OutputBytes[]; filename: string }
   | { type: 'watermark'; file: NamedPdf; watermark: Watermark }
-  | { type: 'page-numbers'; file: NamedPdf; options: PageNumberOptions };
+  | { type: 'page-numbers'; file: NamedPdf; options: PageNumberOptions }
+  | { type: 'compress'; file: NamedPdf; level: CompressionLevel };
 
 export interface PdfWorkerRequest {
   id: number;

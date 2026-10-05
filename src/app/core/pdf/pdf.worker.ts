@@ -2,6 +2,7 @@
 
 import { baseName, OutputBytes } from '../files/output-file';
 import { zipOutputs } from '../files/zip';
+import { browserJpegEncoder, compressPdf } from './ops/compress';
 import { imagesToPdf } from './ops/images-to-pdf';
 import { ProgressFn } from './ops/load';
 import { mergePdfs } from './ops/merge';
@@ -57,6 +58,8 @@ async function runTask(task: PdfTask, onProgress: ProgressFn): Promise<OutputByt
       return watermarkPdf(task.file, task.watermark, onProgress);
     case 'page-numbers':
       return addPageNumbers(task.file, task.options, onProgress);
+    case 'compress':
+      return compressPdf(task.file, task.level, browserJpegEncoder, onProgress);
   }
 }
 

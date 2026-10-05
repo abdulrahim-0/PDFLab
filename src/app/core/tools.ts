@@ -46,6 +46,14 @@ export const TOOLS: readonly ToolDefinition[] = [
     loadComponent: () => import('../features/rotate/rotate').then((m) => m.Rotate),
   },
   {
+    id: 'compress',
+    path: 'compress-pdf',
+    title: 'Compress PDF',
+    description: 'Shrink PDFs with photos or scans by re-compressing their images.',
+    icon: 'compress',
+    loadComponent: () => import('../features/compress/compress').then((m) => m.Compress),
+  },
+  {
     id: 'images-to-pdf',
     path: 'jpg-to-pdf',
     title: 'Images to PDF',

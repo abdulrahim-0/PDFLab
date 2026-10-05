@@ -2,6 +2,7 @@ import { DestroyRef, inject, Injectable, InjectionToken } from '@angular/core';
 import { OutputBytes, OutputFile, toOutputFile } from '../files/output-file';
 import { PageRange } from './page-ranges';
 import { PdfToolError } from './pdf-errors';
+import { CompressionLevel } from './ops/compress';
 import { ImagesToPdfOptions } from './ops/images-to-pdf';
 import { NamedPdf, ProgressFn } from './ops/load';
 import { PageNumberOptions } from './ops/page-numbers';
@@ -103,6 +104,16 @@ export class PdfService {
       [named],
       onProgress,
     );
+  }
+
+  /** Re-compresses photos and optimizes structure; returns the original if that's smaller. */
+  async compress(
+    file: File,
+    level: CompressionLevel,
+    onProgress?: ProgressFn,
+  ): Promise<OutputFile> {
+    const named = await toNamed(file);
+    return this.run({ type: 'compress', file: named, level }, [named], onProgress);
   }
 
   /** Bundles finished files into one zip. */

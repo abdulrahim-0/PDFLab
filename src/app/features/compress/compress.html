@@ -1,0 +1,55 @@
+<app-tool-page
+  title="Compress PDF"
+  description="Make PDFs with photos or scans smaller, right in your browser."
+  processLabel="Compress PDF"
+  processingLabel="Compressing…"
+  processHint="This PDF can’t be compressed."
+  [run]="run"
+  [hasFiles]="!!source.item()"
+  [canProcess]="!source.unreadable()"
+  (process)="compress()"
+  (startOver)="startOver()"
+>
+  <app-file-dropzone
+    toolUpload
+    label="Select PDF file"
+    [multiple]="false"
+    (filesAdded)="add($event)"
+  />
+
+  <app-single-pdf-workspace [source]="source" (remove)="startOver()">
+    <section
+      class="rounded-xl bg-surface-container-lowest p-5 text-sm shadow-sm"
+      aria-labelledby="compress-about"
+    >
+      <h2 id="compress-about" class="mb-2 flex items-center gap-2 font-semibold">
+        <app-icon class="size-4 text-primary-container dark:text-primary" name="alert" />
+        What compression can do here
+      </h2>
+      <ul class="flex list-disc flex-col gap-1.5 pl-5 text-secondary">
+        <li>Photos inside the PDF are re-compressed, and scaled down at stronger levels.</li>
+        <li>Text, fonts and drawings are kept exactly as they are, so they stay sharp.</li>
+        <li>
+          Scanned and photo-heavy PDFs shrink the most. Text-only PDFs are usually already small and
+          may not change.
+        </li>
+        <li>If the result isn’t smaller, you get your original file back.</li>
+      </ul>
+      @if (source.file(); as file) {
+        <p class="mt-3">
+          Current size: <strong>{{ formatBytes(file.size) }}</strong>
+        </p>
+      }
+    </section>
+  </app-single-pdf-workspace>
+
+  <div toolOptions class="flex flex-col gap-4">
+    <app-option-group
+      legend="Compression level"
+      name="compression-level"
+      [options]="levels"
+      [value]="level()"
+      (valueChange)="setLevel($event)"
+    />
+  </div>
+</app-tool-page>
