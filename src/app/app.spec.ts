@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-import { App } from './app';
 import { provideRouter, Router } from '@angular/router';
+import { App } from './app';
 import { routes } from './app.routes';
 
 describe('App', () => {
@@ -11,18 +11,14 @@ describe('App', () => {
     }).compileComponents();
   });
 
-  it('should create the app', () => {
+  it('renders the home page with a card for every tool', async () => {
     const fixture = TestBed.createComponent(App);
-    const app = fixture.componentInstance;
-    expect(app).toBeTruthy();
-  });
-
-  it('should render title', async () => {
-    const fixture = TestBed.createComponent(App);
-    const router = TestBed.inject(Router);
-    await router.navigateByUrl('/');
+    await TestBed.inject(Router).navigateByUrl('/');
     await fixture.whenStable();
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Simple tools for your PDF tasks');
+    const element = fixture.nativeElement as HTMLElement;
+
+    expect(element.querySelector('h1')?.textContent).toContain('Simple tools for your PDF tasks');
+    expect(element.querySelector('a[href="/merge-pdf"]')?.textContent).toContain('Merge PDF');
+    expect(element.querySelector('app-header')?.textContent).toContain('PDFLab');
   });
 });

@@ -1,0 +1,31 @@
+<div class="mx-auto w-full max-w-5xl px-4 py-10 sm:py-16">
+  <section class="mb-10 text-center">
+    <div
+      class="mb-5 inline-flex items-center gap-1.5 rounded-full bg-surface-container-low px-3 py-1 text-xs font-medium text-secondary"
+    >
+      <span class="size-1.5 rounded-full bg-primary-container" aria-hidden="true"></span>
+      Fast, private, client-side processing
+    </div>
+    <h1 class="mb-3 text-3xl font-semibold tracking-[-0.02em] sm:text-4xl">
+      Simple tools for your PDF tasks
+    </h1>
+    <p class="mx-auto max-w-xl text-base text-secondary">
+      Everything runs right here in your browser. No uploads, no accounts, no waiting on a server.
+    </p>
+  </section>
+
+  <section aria-label="PDF tools">
+    <ul class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      @for (tool of tools; track tool.id) {
+        <li><app-tool-card [tool]="tool" /></li>
+      }
+    </ul>
+  </section>
+
+  <div
+    class="mx-auto mt-10 flex max-w-md items-center justify-center gap-2 rounded-lg bg-surface-container-low px-4 py-3 text-sm text-secondary"
+  >
+    <app-icon class="size-4" name="lock" />
+    <p>Files never leave your device. 100% private.</p>
+  </div>
+</div>

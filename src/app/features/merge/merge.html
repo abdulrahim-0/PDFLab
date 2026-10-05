@@ -1,0 +1,42 @@
+<app-tool-page
+  title="Merge PDF"
+  description="Combine PDFs into a single file. Drag to put them in the order you want."
+  processLabel="Merge PDF"
+  processingLabel="Merging…"
+  processHint="Add at least two PDFs to merge."
+  [run]="run"
+  [hasFiles]="items().length > 0"
+  [canProcess]="items().length >= 2"
+  (process)="merge()"
+  (startOver)="startOver()"
+>
+  <app-file-dropzone toolUpload [maxFiles]="maxFiles" (filesAdded)="add($event)" />
+
+  <app-file-list
+    [items]="items()"
+    [reorderable]="true"
+    (remove)="remove($event)"
+    (reorder)="reorder($event)"
+  />
+  @if (items().length < maxFiles) {
+    <app-file-dropzone
+      class="mt-3"
+      label="Add more PDFs"
+      [compact]="true"
+      [maxFiles]="maxFiles"
+      [existingCount]="items().length"
+      (filesAdded)="add($event)"
+    />
+  }
+
+  <dl toolOptions class="grid grid-cols-2 gap-3 text-sm">
+    <div class="rounded-lg bg-surface-container-low p-3">
+      <dt class="text-xs text-secondary">Files</dt>
+      <dd class="text-lg font-semibold">{{ items().length }}</dd>
+    </div>
+    <div class="rounded-lg bg-surface-container-low p-3">
+      <dt class="text-xs text-secondary">Total size</dt>
+      <dd class="text-lg font-semibold">{{ totalSize() }}</dd>
+    </div>
+  </dl>
+</app-tool-page>

@@ -2,20 +2,29 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>PDF Tools</title>
+    <title>PDFLab · Private PDF tools in your browser</title>
     <base href="/" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta
       name="description"
-      content="Simple, private PDF tools to merge documents and delete unwanted pages."
+      content="Merge and edit PDFs right in your browser. Fast, free and private: your files never leave your device."
     />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;display=swap"
-      rel="stylesheet"
-    />
+    <meta name="color-scheme" content="light dark" />
     <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <script>
+      // Apply the saved theme before first paint to avoid a flash. Kept in sync with ThemeService.
+      (function () {
+        var mode = 'system';
+        try {
+          mode = localStorage.getItem('pdflab-theme') || 'system';
+        } catch (e) {}
+        var dark =
+          mode === 'dark' ||
+          (mode !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches);
+        document.documentElement.classList.toggle('dark', dark);
+        document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
+      })();
+    </script>
   </head>
   <body>
     <app-root></app-root>

@@ -1,0 +1,95 @@
+import { DestroyRef, inject, Injectable, InjectionToken } from '@angular/core';
+import { PdfToolError } from './pdf-errors';
+import { NamedPdf, ProgressFn } from './pdf-ops';
+import { PdfTask, PdfWorkerRequest, PdfWorkerResponse } from './pdf-worker-protocol';
+
+export const PDF_WORKER_FACTORY = new InjectionToken<() => Worker>('PDF_WORKER_FACTORY', {
+  providedIn: 'root',
+  factory: () => () => new Worker(new URL('./pdf.worker', import.meta.url), { type: 'module' }),
+});
+
+interface PendingTask {
+  resolve: (data: Uint8Array) => void;
+  reject: (error: Error) => void;
+  onProgress?: ProgressFn;
+}
+
+/** Runs pdf-lib operations in a Web Worker so the UI never blocks. */
+@Injectable({ providedIn: 'root' })
+export class PdfService {
+  private readonly createWorker = inject(PDF_WORKER_FACTORY);
+  private readonly pending = new Map<number, PendingTask>();
+  private worker?: Worker;
+  private nextId = 1;
+
+  constructor() {
+    inject(DestroyRef).onDestroy(() => this.terminate());
+  }
+
+  async merge(files: readonly File[], onProgress?: ProgressFn): Promise<Blob> {
+    const named = await toNamedPdfs(files);
+    const bytes = await this.run({ type: 'merge', files: named }, onProgress);
+    return new Blob([bytes as Uint8Array<ArrayBuffer>], { type: 'application/pdf' });
+  }
+
+  private run(task: PdfTask, onProgress?: ProgressFn): Promise<Uint8Array> {
+    const worker = this.getWorker();
+    const id = this.nextId++;
+    const transfer = task.files.map((file) => file.data as ArrayBuffer);
+    return new Promise((resolve, reject) => {
+      this.pending.set(id, { resolve, reject, onProgress });
+      worker.postMessage({ id, task } satisfies PdfWorkerRequest, transfer);
+    });
+  }
+
+  private getWorker(): Worker {
+    if (this.worker) {
+      return this.worker;
+    }
+    const worker = this.createWorker();
+    worker.addEventListener('message', ({ data }: MessageEvent<PdfWorkerResponse>) =>
+      this.handleMessage(data),
+    );
+    worker.addEventListener('error', (event) => {
+      event.preventDefault();
+      this.terminate(new Error('The PDF engine stopped unexpectedly. Please try again.'));
+    });
+    this.worker = worker;
+    return worker;
+  }
+
+  private handleMessage(message: PdfWorkerResponse): void {
+    const task = this.pending.get(message.id);
+    if (!task) {
+      return;
+    }
+    switch (message.kind) {
+      case 'progress':
+        task.onProgress?.(message.value);
+        return;
+      case 'result':
+        this.pending.delete(message.id);
+        task.resolve(message.data);
+        return;
+      case 'error':
+        this.pending.delete(message.id);
+        task.reject(new PdfToolError(message.code, message.message));
+        return;
+    }
+  }
+
+  private terminate(reason = new Error('The PDF engine was shut down.')): void {
+    this.worker?.terminate();
+    this.worker = undefined;
+    for (const task of this.pending.values()) {
+      task.reject(reason);
+    }
+    this.pending.clear();
+  }
+}
+
+async function toNamedPdfs(files: readonly File[]): Promise<NamedPdf[]> {
+  return Promise.all(
+    files.map(async (file) => ({ name: file.name, data: await file.arrayBuffer() })),
+  );
+}
