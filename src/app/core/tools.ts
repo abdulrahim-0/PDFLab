@@ -30,6 +30,14 @@ export const TOOLS: readonly ToolDefinition[] = [
     loadComponent: () => import('../features/split/split').then((m) => m.Split),
   },
   {
+    id: 'organize',
+    path: 'organize-pdf',
+    title: 'Organize PDF',
+    description: 'Reorder pages by dragging, or delete the ones you don’t need.',
+    icon: 'organize',
+    loadComponent: () => import('../features/organize/organize').then((m) => m.Organize),
+  },
+  {
     id: 'rotate',
     path: 'rotate-pdf',
     title: 'Rotate PDF',

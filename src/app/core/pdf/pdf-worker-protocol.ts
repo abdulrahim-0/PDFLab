@@ -6,7 +6,8 @@ import { PdfErrorCode } from './pdf-errors';
 export type PdfTask =
   | { type: 'merge'; files: NamedPdf[] }
   | { type: 'split'; file: NamedPdf; ranges: PageRange[] }
-  | { type: 'rotate'; file: NamedPdf; rotations: Record<number, number> };
+  | { type: 'rotate'; file: NamedPdf; rotations: Record<number, number> }
+  | { type: 'organize'; file: NamedPdf; order: number[] };
 
 export interface PdfWorkerRequest {
   id: number;

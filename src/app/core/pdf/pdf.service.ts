@@ -58,6 +58,16 @@ export class PdfService {
     );
   }
 
+  /** Keeps only the given 0-based page indices, in that order. */
+  async organize(
+    file: File,
+    order: readonly number[],
+    onProgress?: ProgressFn,
+  ): Promise<OutputFile> {
+    const named = await toNamed(file);
+    return this.run({ type: 'organize', file: named, order: [...order] }, [named], onProgress);
+  }
+
   /** `inputs` have their buffers transferred to the worker (they become unusable here). */
   private async run(
     task: PdfTask,

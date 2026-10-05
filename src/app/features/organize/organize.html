@@ -1,0 +1,101 @@
+<app-tool-page
+  title="Organize PDF"
+  description="Drag pages into a new order and delete the ones you don’t need."
+  processLabel="Save changes"
+  processingLabel="Saving…"
+  [processHint]="
+    source.unreadable()
+      ? 'This PDF can’t be organized.'
+      : kept().length === 0
+        ? 'Keep at least one page.'
+        : 'Move or delete a page first.'
+  "
+  [run]="run"
+  [hasFiles]="!!source.item()"
+  [canProcess]="changed() && kept().length > 0"
+  (process)="organize()"
+  (startOver)="startOver()"
+>
+  <app-file-dropzone
+    toolUpload
+    label="Select PDF file"
+    [multiple]="false"
+    (filesAdded)="add($event)"
+  />
+
+  <app-single-pdf-workspace [source]="source" (remove)="startOver()">
+    @if (source.file(); as file) {
+      <app-page-grid
+        [file]="file"
+        [pageCount]="source.pageCount() ?? 0"
+        [order]="order()"
+        [dimmed]="deleted()"
+        [reorderable]="true"
+        [actions]="pageActions"
+        (reorder)="reorder($event)"
+      />
+    }
+    <p id="organize-status" class="sr-only" aria-live="polite">{{ announcement() }}</p>
+  </app-single-pdf-workspace>
+
+  <ng-template #pageActions let-page let-index="index" let-first="first" let-last="last">
+    <div class="flex gap-0.5">
+      <button
+        type="button"
+        class="rounded p-1.5 text-secondary hover:bg-surface-container hover:text-on-surface disabled:opacity-30"
+        [disabled]="first"
+        [attr.aria-label]="'Move page ' + page + ' earlier'"
+        (click)="move(index, index - 1)"
+      >
+        <app-icon class="size-4" name="chevron-left" />
+      </button>
+      @if (deleted().has(page)) {
+        <button
+          type="button"
+          class="rounded p-1.5 text-primary-container hover:bg-surface-container dark:text-primary"
+          [attr.aria-label]="'Restore page ' + page"
+          (click)="toggleDeleted(page)"
+        >
+          <app-icon class="size-4" name="undo" />
+        </button>
+      } @else {
+        <button
+          type="button"
+          class="rounded p-1.5 text-secondary hover:bg-surface-container hover:text-error"
+          [attr.aria-label]="'Delete page ' + page"
+          (click)="toggleDeleted(page)"
+        >
+          <app-icon class="size-4" name="trash" />
+        </button>
+      }
+      <button
+        type="button"
+        class="rounded p-1.5 text-secondary hover:bg-surface-container hover:text-on-surface disabled:opacity-30"
+        [disabled]="last"
+        [attr.aria-label]="'Move page ' + page + ' later'"
+        (click)="move(index, index + 1)"
+      >
+        <app-icon class="size-4" name="chevron-right" />
+      </button>
+    </div>
+  </ng-template>
+
+  <div toolOptions class="flex flex-col gap-3">
+    <p class="rounded-lg bg-surface-container-low p-3 text-sm">
+      Keeping <strong>{{ kept().length }}</strong> of {{ order().length }} pages.
+      @if (deleted().size > 0) {
+        <span class="text-secondary">{{ deleted().size }} marked for deletion.</span>
+      }
+    </p>
+    <div class="grid grid-cols-2 gap-2">
+      <button type="button" class="btn btn-secondary" (click)="reverse()">
+        <app-icon class="size-4" name="swap" />
+        Reverse
+      </button>
+      <button type="button" class="btn btn-secondary" [disabled]="!changed()" (click)="reset()">
+        <app-icon class="size-4" name="undo" />
+        Reset
+      </button>
+    </div>
+  </div>
+</app-tool-page>
