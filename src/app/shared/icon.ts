@@ -3,6 +3,21 @@ import { Component, input } from '@angular/core';
 export type IconName =
   | 'merge'
   | 'split'
+  | 'rotate'
+  | 'rotate-ccw'
+  | 'rotate-cw'
+  | 'organize'
+  | 'compress'
+  | 'image'
+  | 'images'
+  | 'watermark'
+  | 'page-numbers'
+  | 'unlock'
+  | 'trash'
+  | 'undo'
+  | 'chevron-left'
+  | 'chevron-right'
+  | 'swap'
   | 'arrow'
   | 'lock'
   | 'upload'
@@ -46,6 +61,63 @@ export type IconName =
             d="M8 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h2M16 3h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-2"
           />
           <path d="M12 3v3m0 4v4m0 4v3" />
+        }
+        @case ('rotate') {
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+          <path d="M15.5 14a3.5 3.5 0 1 1-1-2.5M15.5 10v2h-2" />
+        }
+        @case ('rotate-cw') {
+          <path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v4h-4" />
+        }
+        @case ('rotate-ccw') {
+          <path d="M4 12a8 8 0 1 0 2.3-5.7M4 4v4h4" />
+        }
+        @case ('organize') {
+          <rect x="3" y="3" width="7" height="9" rx="1.5" />
+          <rect x="14" y="3" width="7" height="9" rx="1.5" />
+          <path d="M3 16h18M3 20h12" />
+        }
+        @case ('compress') {
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+          <path d="M12 9v3m0 0-2-2m2 2 2-2M12 18v-3m0 0-2 2m2-2 2 2" />
+        }
+        @case ('image') {
+          <rect x="3" y="3" width="18" height="18" rx="2" />
+          <circle cx="9" cy="9" r="2" />
+          <path d="m21 15-5-5L5 21" />
+        }
+        @case ('images') {
+          <rect x="7" y="7" width="14" height="14" rx="2" />
+          <path d="M17 3H5a2 2 0 0 0-2 2v12" />
+          <path d="m21 16-4-4-7 7" />
+        }
+        @case ('watermark') {
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+          <path d="M12 10.5c-1.5 2-2.5 3.3-2.5 4.5a2.5 2.5 0 0 0 5 0c0-1.2-1-2.5-2.5-4.5z" />
+        }
+        @case ('page-numbers') {
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+          <path d="M10 13h4m-4 4h4m-3-6-1 8m4-8-1 8" />
+        }
+        @case ('unlock') {
+          <rect x="5" y="10" width="14" height="11" rx="2" />
+          <path d="M8 10V7a4 4 0 0 1 7.5-2m-3.5 10v2" />
+        }
+        @case ('trash') {
+          <path d="M4 7h16M10 11v6m4-6v6M6 7l1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13M9 7V4h6v3" />
+        }
+        @case ('undo') {
+          <path d="M9 14 4 9l5-5" />
+          <path d="M4 9h11a5 5 0 0 1 0 10h-3" />
+        }
+        @case ('chevron-left') {
+          <path d="m15 6-6 6 6 6" />
+        }
+        @case ('chevron-right') {
+          <path d="m9 6 6 6-6 6" />
+        }
+        @case ('swap') {
+          <path d="M7 4v16m0 0-3-3m3 3 3-3M17 20V4m0 0-3 3m3-3 3 3" />
         }
         @case ('upload') {
           <path d="M12 16V4m-5 5 5-5 5 5M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" />

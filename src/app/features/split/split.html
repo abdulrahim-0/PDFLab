@@ -4,12 +4,10 @@
   processLabel="Split PDF"
   processingLabel="Splitting…"
   [processHint]="
-    pageCount().status === 'error'
-      ? 'This PDF can’t be split.'
-      : 'Enter valid page ranges to continue.'
+    source.unreadable() ? 'This PDF can’t be split.' : 'Enter valid page ranges to continue.'
   "
   [run]="run"
-  [hasFiles]="!!item()"
+  [hasFiles]="!!source.item()"
   [canProcess]="ranges().length > 0"
   (process)="split()"
   (startOver)="startOver()"
@@ -21,28 +19,11 @@
     (filesAdded)="add($event)"
   />
 
-  <app-file-list [items]="items()" (remove)="startOver()" />
-
-  @switch (pageCount().status) {
-    @case ('loading') {
-      <p class="mt-6 text-center text-sm text-secondary">Reading pages…</p>
+  <app-single-pdf-workspace [source]="source" (remove)="startOver()">
+    @if (source.file(); as file) {
+      <app-page-grid [file]="file" [pageCount]="source.pageCount() ?? 0" [marks]="marks()" />
     }
-    @case ('error') {
-      <p class="mt-6 text-center text-sm text-secondary">
-        Choose a different PDF, or remove the password first if it’s protected.
-      </p>
-    }
-    @case ('ready') {
-      @if (item(); as item) {
-        <app-page-grid
-          class="mt-6"
-          [file]="item.file"
-          [pageCount]="readyPageCount() ?? 0"
-          [marks]="marks()"
-        />
-      }
-    }
-  }
+  </app-single-pdf-workspace>
 
   <div toolOptions class="flex flex-col gap-4">
     <fieldset>

@@ -1,10 +1,12 @@
 import { OutputBytes } from '../files/output-file';
+import { NamedPdf } from './ops/load';
 import { PageRange } from './page-ranges';
 import { PdfErrorCode } from './pdf-errors';
-import { NamedPdf } from './pdf-ops';
 
 export type PdfTask =
-  { type: 'merge'; files: NamedPdf[] } | { type: 'split'; file: NamedPdf; ranges: PageRange[] };
+  | { type: 'merge'; files: NamedPdf[] }
+  | { type: 'split'; file: NamedPdf; ranges: PageRange[] }
+  | { type: 'rotate'; file: NamedPdf; rotations: Record<number, number> };
 
 export interface PdfWorkerRequest {
   id: number;

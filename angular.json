@@ -44,9 +44,15 @@
                 "output": "pdfjs/iccs"
               }
             ],
-            "styles": ["node_modules/@fontsource-variable/inter/index.css", "src/styles.css"],
+            "styles": [
+              "node_modules/@fontsource-variable/inter/index.css",
+              "src/styles.css"
+            ],
             "webWorkerTsConfig": "tsconfig.worker.json",
-            "allowedCommonJsDependencies": ["jszip", "pako"]
+            "allowedCommonJsDependencies": [
+              "jszip",
+              "node-html-better-parser"
+            ]
           },
           "configurations": {
             "production": {

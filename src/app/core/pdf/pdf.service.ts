@@ -2,7 +2,7 @@ import { DestroyRef, inject, Injectable, InjectionToken } from '@angular/core';
 import { OutputBytes, OutputFile, toOutputFile } from '../files/output-file';
 import { PageRange } from './page-ranges';
 import { PdfToolError } from './pdf-errors';
-import { NamedPdf, ProgressFn } from './pdf-ops';
+import { NamedPdf, ProgressFn } from './ops/load';
 import { PdfTask, PdfWorkerRequest, PdfWorkerResponse } from './pdf-worker-protocol';
 
 export const PDF_WORKER_FACTORY = new InjectionToken<() => Worker>('PDF_WORKER_FACTORY', {
@@ -30,8 +30,8 @@ export class PdfService {
 
   /** Combines the files, in order, into `merged.pdf`. */
   async merge(files: readonly File[], onProgress?: ProgressFn): Promise<OutputFile> {
-    const named = await toNamedPdfs(files);
-    return this.run({ type: 'merge', files: named }, onProgress);
+    const named = await Promise.all(files.map(toNamed));
+    return this.run({ type: 'merge', files: named }, named, onProgress);
   }
 
   /** One PDF per range; several results come back as a single zip. */
@@ -40,15 +40,33 @@ export class PdfService {
     ranges: readonly PageRange[],
     onProgress?: ProgressFn,
   ): Promise<OutputFile> {
-    const [named] = await toNamedPdfs([file]);
-    return this.run({ type: 'split', file: named, ranges: [...ranges] }, onProgress);
+    const named = await toNamed(file);
+    return this.run({ type: 'split', file: named, ranges: [...ranges] }, [named], onProgress);
   }
 
-  private async run(task: PdfTask, onProgress?: ProgressFn): Promise<OutputFile> {
+  /** Adds clockwise rotation to pages, keyed by 0-based page index. */
+  async rotate(
+    file: File,
+    rotations: Readonly<Record<number, number>>,
+    onProgress?: ProgressFn,
+  ): Promise<OutputFile> {
+    const named = await toNamed(file);
+    return this.run(
+      { type: 'rotate', file: named, rotations: { ...rotations } },
+      [named],
+      onProgress,
+    );
+  }
+
+  /** `inputs` have their buffers transferred to the worker (they become unusable here). */
+  private async run(
+    task: PdfTask,
+    inputs: readonly { data: ArrayBuffer | Uint8Array }[],
+    onProgress?: ProgressFn,
+  ): Promise<OutputFile> {
     const worker = this.getWorker();
     const id = this.nextId++;
-    const files = task.type === 'merge' ? task.files : [task.file];
-    const transfer = files.map((file) => file.data as ArrayBuffer);
+    const transfer = inputs.map(({ data }) => (data instanceof Uint8Array ? data.buffer : data));
     const output = await new Promise<OutputBytes>((resolve, reject) => {
       this.pending.set(id, { resolve, reject, onProgress });
       worker.postMessage({ id, task } satisfies PdfWorkerRequest, transfer);
@@ -102,8 +120,6 @@ export class PdfService {
   }
 }
 
-async function toNamedPdfs(files: readonly File[]): Promise<NamedPdf[]> {
-  return Promise.all(
-    files.map(async (file) => ({ name: file.name, data: await file.arrayBuffer() })),
-  );
+async function toNamed(file: File): Promise<NamedPdf> {
+  return { name: file.name, data: await file.arrayBuffer() };
 }

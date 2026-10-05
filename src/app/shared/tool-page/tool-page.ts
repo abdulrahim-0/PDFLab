@@ -53,7 +53,12 @@ import { ToolRun } from './tool-run';
             >
               Your file is ready
             </h2>
-            <p class="text-sm text-secondary">{{ result.filename }} · {{ resultSize() }}</p>
+            <p class="text-sm break-all text-secondary">
+              {{ result.filename }} · {{ resultSize() }}
+            </p>
+            @if (result.note) {
+              <p class="mt-2 text-sm">{{ result.note }}</p>
+            }
           </div>
           <button type="button" class="btn btn-primary h-12 w-full text-base" (click)="download()">
             <app-icon class="size-5" name="download" />

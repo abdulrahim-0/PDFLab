@@ -29,4 +29,12 @@ export const TOOLS: readonly ToolDefinition[] = [
     icon: 'split',
     loadComponent: () => import('../features/split/split').then((m) => m.Split),
   },
+  {
+    id: 'rotate',
+    path: 'rotate-pdf',
+    title: 'Rotate PDF',
+    description: 'Turn individual pages or the whole document, without losing quality.',
+    icon: 'rotate',
+    loadComponent: () => import('../features/rotate/rotate').then((m) => m.Rotate),
+  },
 ];

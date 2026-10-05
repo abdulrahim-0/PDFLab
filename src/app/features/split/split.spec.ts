@@ -103,6 +103,30 @@ describe('Split', () => {
     expect(splitButton(element).disabled).toBe(true);
   });
 
+  it('keeps ranges typed before the page count is known', async () => {
+    let resolveCount!: (count: number) => void;
+    pageCount = new Promise((resolve) => (resolveCount = resolve));
+    const fixture = TestBed.createComponent(Split);
+    const element: HTMLElement = fixture.nativeElement;
+    await fixture.whenStable();
+    drop(element.querySelector('app-file-dropzone > div')!, [
+      new File(['%PDF-1.7'], 'report.pdf', { type: 'application/pdf' }),
+    ]);
+    await vi.waitFor(() => {
+      fixture.detectChanges();
+      expect(element.querySelector('#split-ranges')).not.toBeNull();
+    });
+
+    await typeRanges(fixture, element, '2-3');
+    resolveCount(6);
+    await vi.waitFor(() => {
+      fixture.detectChanges();
+      expect(element.querySelectorAll('app-page-grid li').length).toBe(6);
+    });
+
+    expect(element.querySelector<HTMLInputElement>('#split-ranges')!.value).toBe('2-3');
+  });
+
   it('can extract every page', async () => {
     const { fixture, element } = await setup();
 

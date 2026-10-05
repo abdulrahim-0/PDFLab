@@ -1,4 +1,4 @@
-export type PdfErrorCode = 'encrypted' | 'corrupt' | 'invalid-input' | 'unknown';
+export type PdfErrorCode = 'encrypted' | 'wrong-password' | 'corrupt' | 'invalid-input' | 'unknown';
 
 /** An error whose message is safe to show to the user as-is. */
 export class PdfToolError extends Error {
@@ -14,7 +14,7 @@ export class PdfToolError extends Error {
 export function encryptedError(fileName: string): PdfToolError {
   return new PdfToolError(
     'encrypted',
-    `“${fileName}” is password-protected. Remove the password first, then try again.`,
+    `“${fileName}” is protected. Remove its password with Unlock PDF first, then try again.`,
   );
 }
 
