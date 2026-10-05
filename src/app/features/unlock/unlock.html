@@ -1,0 +1,44 @@
+<app-tool-page
+  title="Unlock PDF"
+  description="Remove the password from a PDF, so it opens without one."
+  processLabel="Unlock PDF"
+  processingLabel="Unlocking…"
+  [processHint]="corrupt() ? 'This file couldn’t be read.' : 'Enter the PDF’s password.'"
+  [run]="run"
+  [hasFiles]="!!source.item()"
+  [canProcess]="ready()"
+  (process)="unlock()"
+  (startOver)="startOver()"
+>
+  <app-file-dropzone
+    toolUpload
+    label="Select PDF file"
+    [multiple]="false"
+    (filesAdded)="add($event)"
+  />
+
+  <app-single-pdf-workspace
+    [source]="source"
+    encryptedHint="This PDF needs its password to open. Enter it to unlock the file."
+    (remove)="startOver()"
+  >
+    <p class="rounded-xl bg-surface-container-lowest p-5 text-sm text-secondary shadow-sm">
+      This PDF opens without a password. If it blocks printing, copying or editing, unlocking
+      removes those restrictions.
+    </p>
+  </app-single-pdf-workspace>
+
+  <form toolOptions class="flex flex-col gap-3" (submit)="$event.preventDefault(); unlock()">
+    <app-password-field
+      label="Password"
+      autocomplete="current-password"
+      [value]="password()"
+      [hint]="needsPassword() ? '' : 'Only needed if the file asks for one when opening.'"
+      (valueChange)="setPassword($event)"
+    />
+    <p class="text-xs text-secondary">
+      You need the password to unlock a file that asks for one. PDFLab can’t remove passwords you
+      don’t know.
+    </p>
+  </form>
+</app-tool-page>

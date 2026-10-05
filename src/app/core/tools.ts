@@ -95,4 +95,12 @@ export const TOOLS: readonly ToolDefinition[] = [
     icon: 'lock',
     loadComponent: () => import('../features/protect/protect').then((m) => m.Protect),
   },
+  {
+    id: 'unlock',
+    path: 'unlock-pdf',
+    title: 'Unlock PDF',
+    description: 'Remove the password from a PDF you can open, or lift its restrictions.',
+    icon: 'unlock',
+    loadComponent: () => import('../features/unlock/unlock').then((m) => m.Unlock),
+  },
 ];
