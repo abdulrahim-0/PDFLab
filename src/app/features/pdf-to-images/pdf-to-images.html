@@ -1,0 +1,84 @@
+<app-tool-page
+  title="PDF to Images"
+  description="Save each page as a JPG or PNG image. Several pages download as a zip."
+  processLabel="Convert to images"
+  processingLabel="Rendering pages…"
+  [processHint]="
+    source.unreadable() ? 'This PDF can’t be converted.' : 'Choose valid pages to continue.'
+  "
+  [run]="run"
+  [hasFiles]="!!source.item()"
+  [canProcess]="pages().length > 0"
+  (process)="convert()"
+  (startOver)="startOver()"
+>
+  <app-file-dropzone
+    toolUpload
+    label="Select PDF file"
+    [multiple]="false"
+    (filesAdded)="add($event)"
+  />
+
+  <app-single-pdf-workspace [source]="source" (remove)="startOver()">
+    @if (source.file(); as file) {
+      <app-page-grid [file]="file" [pageCount]="source.pageCount() ?? 0" [marks]="marks()" />
+    }
+  </app-single-pdf-workspace>
+
+  <div toolOptions class="flex flex-col gap-4">
+    <app-option-group
+      legend="Format"
+      name="format"
+      [columns]="2"
+      [options]="formats"
+      [value]="format()"
+      (valueChange)="set(format.set, $event)"
+    />
+    <app-option-group
+      legend="Resolution"
+      name="quality"
+      [options]="qualities"
+      [value]="quality()"
+      (valueChange)="set(quality.set, $event)"
+    />
+    <app-option-group
+      legend="Pages"
+      name="pages"
+      [columns]="2"
+      [options]="pageChoices"
+      [value]="pageChoice()"
+      (valueChange)="set(pageChoice.set, $event)"
+    />
+    @if (pageChoice() === 'custom') {
+      <div>
+        <label for="image-pages" class="mb-1.5 block text-sm font-semibold">Page numbers</label>
+        <input
+          id="image-pages"
+          type="text"
+          inputmode="numeric"
+          autocomplete="off"
+          spellcheck="false"
+          placeholder="e.g. 1-3, 5"
+          class="h-10 w-full rounded-lg border bg-surface px-3 text-sm"
+          [class]="rangeError() ? 'border-error' : 'border-outline-variant'"
+          [value]="rangeInput()"
+          [attr.aria-invalid]="!!rangeError()"
+          aria-describedby="image-pages-help"
+          (input)="set(rangeInput.set, $any($event.target).value)"
+        />
+        <p
+          id="image-pages-help"
+          class="mt-1.5 text-xs"
+          [class]="rangeError() ? 'text-error' : 'text-secondary'"
+        >
+          {{ rangeError() ?? 'Separate pages and ranges with commas.' }}
+        </p>
+      </div>
+    }
+    @if (summary()) {
+      <p class="rounded-lg bg-surface-container-low p-3 text-sm" aria-live="polite">
+        {{ summary() }}
+      </p>
+    }
+  </div>
+</app-tool-page>

@@ -1,4 +1,4 @@
-import { everyPage, formatRange, parsePageRanges } from './page-ranges';
+import { everyPage, formatRange, pagesInRanges, parsePageRanges } from './page-ranges';
 
 describe('parsePageRanges', () => {
   it.each([
@@ -63,5 +63,11 @@ describe('everyPage / formatRange', () => {
 
   it('formats multi-page ranges', () => {
     expect(formatRange({ start: 2, end: 6 })).toBe('2-6');
+  });
+});
+
+describe('pagesInRanges', () => {
+  it('lists pages once, in order of appearance', () => {
+    expect(pagesInRanges(parsePageRanges('5-6, 1-2, 2-5', 10))).toEqual([5, 6, 1, 2, 3, 4]);
   });
 });

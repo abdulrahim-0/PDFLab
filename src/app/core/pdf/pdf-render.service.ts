@@ -4,6 +4,19 @@ import { corruptError, encryptedError, PdfToolError } from './pdf-errors';
 
 type PdfJs = typeof import('pdfjs-dist');
 
+export type ImageFormat = 'jpeg' | 'png';
+
+/** Browsers refuse canvases beyond these limits (Safari is the strictest). */
+const MAX_CANVAS_AREA = 16_777_216;
+const MAX_CANVAS_SIDE = 16_384;
+
+/** Scale actually used for a page, shrunk if needed to stay within canvas limits. */
+export function safeScale(width: number, height: number, scale: number): number {
+  const areaLimit = Math.sqrt(MAX_CANVAS_AREA / (width * height));
+  const sideLimit = MAX_CANVAS_SIDE / Math.max(width, height);
+  return Math.min(scale, areaLimit, sideLimit);
+}
+
 /**
  * Renders page previews with pdf.js. Parsing and decoding happen in pdf.js's
  * own worker; only the final canvas paint runs on the main thread, and renders
@@ -32,11 +45,35 @@ export class PdfRenderService {
     const key = `${pageNumber}@${Math.round(pixelWidth)}`;
     let url = cache.get(key);
     if (!url) {
-      url = this.enqueue(() => this.render(file, pageNumber, pixelWidth));
+      url = this.enqueue(async () =>
+        URL.createObjectURL(
+          await this.render(file, pageNumber, (width) => pixelWidth / width, 'jpeg', 0.85),
+        ),
+      );
       cache.set(key, url);
       url.catch(() => cache.delete(key));
     }
     return url;
+  }
+
+  /**
+   * Renders a page as an image at `dpi` (72 = 1 PDF point per pixel). Very
+   * large pages are scaled down to fit browser canvas limits.
+   */
+  renderPageImage(
+    file: File,
+    pageNumber: number,
+    { dpi, format, quality = 0.92 }: { dpi: number; format: ImageFormat; quality?: number },
+  ): Promise<Blob> {
+    return this.enqueue(() =>
+      this.render(
+        file,
+        pageNumber,
+        (width, height) => safeScale(width, height, dpi / 72),
+        format,
+        quality,
+      ),
+    );
   }
 
   /** Frees the parsed document and thumbnails for a file that's no longer shown. */
@@ -50,23 +87,31 @@ export class PdfRenderService {
     doc?.then((d) => d.loadingTask.destroy()).catch(() => undefined);
   }
 
-  private async render(file: File, pageNumber: number, pixelWidth: number): Promise<string> {
+  private async render(
+    file: File,
+    pageNumber: number,
+    scaleFor: (width: number, height: number) => number,
+    format: ImageFormat,
+    quality: number,
+  ): Promise<Blob> {
     const doc = await this.open(file);
     const page = await doc.getPage(pageNumber);
     try {
-      const scale = pixelWidth / page.getViewport({ scale: 1 }).width;
-      const viewport = page.getViewport({ scale });
+      const base = page.getViewport({ scale: 1 });
+      const viewport = page.getViewport({ scale: scaleFor(base.width, base.height) });
       const canvas = this.document.createElement('canvas');
       canvas.width = Math.ceil(viewport.width);
       canvas.height = Math.ceil(viewport.height);
       await page.render({ canvas, viewport }).promise;
       const blob = await new Promise<Blob | null>((resolve) =>
-        canvas.toBlob(resolve, 'image/jpeg', 0.85),
+        canvas.toBlob(resolve, `image/${format}`, quality),
       );
+      // Free the canvas memory right away; large exports can use hundreds of MB.
+      canvas.width = canvas.height = 0;
       if (!blob) {
         throw new Error('Canvas export failed');
       }
-      return URL.createObjectURL(blob);
+      return blob;
     } finally {
       page.cleanup();
     }

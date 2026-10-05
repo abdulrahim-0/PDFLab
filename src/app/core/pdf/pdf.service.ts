@@ -83,6 +83,22 @@ export class PdfService {
     );
   }
 
+  /** Bundles finished files into one zip. */
+  async zip(
+    files: readonly OutputFile[],
+    filename: string,
+    onProgress?: ProgressFn,
+  ): Promise<OutputFile> {
+    const bytes: OutputBytes[] = await Promise.all(
+      files.map(async ({ filename, blob }) => ({
+        filename,
+        mimeType: blob.type,
+        data: new Uint8Array(await blob.arrayBuffer()),
+      })),
+    );
+    return this.run({ type: 'zip', files: bytes, filename }, bytes, onProgress);
+  }
+
   /** `inputs` have their buffers transferred to the worker (they become unusable here). */
   private async run(
     task: PdfTask,

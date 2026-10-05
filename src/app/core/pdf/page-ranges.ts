@@ -55,3 +55,14 @@ export function formatRange({ start, end }: PageRange): string {
 function rangeError(message: string): PdfToolError {
   return new PdfToolError('invalid-input', message);
 }
+
+/** The pages covered by the ranges, without duplicates, in first-seen order. */
+export function pagesInRanges(ranges: readonly PageRange[]): number[] {
+  const pages = new Set<number>();
+  for (const { start, end } of ranges) {
+    for (let page = start; page <= end; page++) {
+      pages.add(page);
+    }
+  }
+  return [...pages];
+}

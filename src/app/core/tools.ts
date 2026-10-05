@@ -54,4 +54,13 @@ export const TOOLS: readonly ToolDefinition[] = [
     loadComponent: () =>
       import('../features/images-to-pdf/images-to-pdf').then((m) => m.ImagesToPdf),
   },
+  {
+    id: 'pdf-to-images',
+    path: 'pdf-to-jpg',
+    title: 'PDF to Images',
+    description: 'Save PDF pages as JPG or PNG images, at the resolution you need.',
+    icon: 'images',
+    loadComponent: () =>
+      import('../features/pdf-to-images/pdf-to-images').then((m) => m.PdfToImages),
+  },
 ];

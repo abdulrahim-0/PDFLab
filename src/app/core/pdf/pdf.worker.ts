@@ -49,6 +49,8 @@ async function runTask(task: PdfTask, onProgress: ProgressFn): Promise<OutputByt
       return organizePdf(task.file, task.order, onProgress);
     case 'images-to-pdf':
       return imagesToPdf(task.images, task.options, onProgress);
+    case 'zip':
+      return zipOutputs(task.files, task.filename, onProgress);
   }
 }
 

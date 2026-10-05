@@ -9,7 +9,8 @@ export type PdfTask =
   | { type: 'split'; file: NamedPdf; ranges: PageRange[] }
   | { type: 'rotate'; file: NamedPdf; rotations: Record<number, number> }
   | { type: 'organize'; file: NamedPdf; order: number[] }
-  | { type: 'images-to-pdf'; images: NamedImage[]; options: ImagesToPdfOptions };
+  | { type: 'images-to-pdf'; images: NamedImage[]; options: ImagesToPdfOptions }
+  | { type: 'zip'; files: OutputBytes[]; filename: string };
 
 export interface PdfWorkerRequest {
   id: number;
