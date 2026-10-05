@@ -1,0 +1,98 @@
+<app-tool-page
+  title="Add Page Numbers"
+  description="Number every page, or start after a cover page, in the style you like."
+  processLabel="Add page numbers"
+  processingLabel="Numbering pages…"
+  [processHint]="
+    source.unreadable() ? 'This PDF can’t be numbered.' : 'Fix the highlighted settings first.'
+  "
+  [run]="run"
+  [hasFiles]="!!source.item()"
+  [canProcess]="valid()"
+  (process)="apply()"
+  (startOver)="startOver()"
+>
+  <app-file-dropzone
+    toolUpload
+    label="Select PDF file"
+    [multiple]="false"
+    (filesAdded)="add($event)"
+  />
+
+  <app-single-pdf-workspace [source]="source" (remove)="startOver()">
+    @if (source.file(); as file) {
+      @if (previewMark(); as mark) {
+        <app-stamp-preview [file]="file" [page]="firstPage()" [mark]="mark" [margin]="margin()" />
+      }
+    }
+  </app-single-pdf-workspace>
+
+  <div toolOptions class="flex flex-col gap-4">
+    <app-position-picker
+      name="number-position"
+      [rows]="['top', 'bottom']"
+      [value]="position()"
+      (valueChange)="set(position.set, $event)"
+    />
+    <app-option-group
+      legend="Style"
+      name="number-format"
+      [columns]="2"
+      [options]="formats"
+      [value]="format()"
+      (valueChange)="set(format.set, $event)"
+    />
+    <div class="grid grid-cols-2 gap-3">
+      <div>
+        <label for="first-page" class="mb-1.5 block text-sm font-semibold">Start on page</label>
+        <input
+          id="first-page"
+          type="number"
+          min="1"
+          [max]="source.pageCount()"
+          class="h-10 w-full rounded-lg border bg-surface px-3 text-sm"
+          [class]="firstPageError() ? 'border-error' : 'border-outline-variant'"
+          [value]="firstPage()"
+          [attr.aria-invalid]="!!firstPageError()"
+          [attr.aria-describedby]="firstPageError() ? 'first-page-error' : null"
+          (input)="set(firstPage.set, $any($event.target).valueAsNumber)"
+        />
+      </div>
+      <div>
+        <label for="start-number" class="mb-1.5 block text-sm font-semibold">First number</label>
+        <input
+          id="start-number"
+          type="number"
+          min="0"
+          class="h-10 w-full rounded-lg border bg-surface px-3 text-sm"
+          [class]="startNumberError() ? 'border-error' : 'border-outline-variant'"
+          [value]="startNumber()"
+          [attr.aria-invalid]="!!startNumberError()"
+          [attr.aria-describedby]="startNumberError() ? 'start-number-error' : null"
+          (input)="set(startNumber.set, $any($event.target).valueAsNumber)"
+        />
+      </div>
+    </div>
+    @if (firstPageError(); as error) {
+      <p id="first-page-error" class="-mt-2 text-xs text-error">{{ error }}</p>
+    }
+    @if (startNumberError(); as error) {
+      <p id="start-number-error" class="-mt-2 text-xs text-error">{{ error }}</p>
+    }
+    <app-range-field
+      label="Font size"
+      unit=" pt"
+      [min]="6"
+      [max]="36"
+      [value]="fontSize()"
+      (valueChange)="set(fontSize.set, $event)"
+    />
+    <app-option-group
+      legend="Distance from edge"
+      name="number-margin"
+      [options]="margins"
+      [value]="marginSize()"
+      (valueChange)="set(marginSize.set, $event)"
+    />
+  </div>
+</app-tool-page>

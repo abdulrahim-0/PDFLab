@@ -16,7 +16,7 @@ import { injectSinglePdf } from '../../shared/single-pdf/single-pdf';
 import { SinglePdfWorkspace } from '../../shared/single-pdf/single-pdf-workspace';
 import { ToolPage } from '../../shared/tool-page/tool-page';
 import { ToolRun } from '../../shared/tool-page/tool-run';
-import { PreviewMark, WatermarkPreview } from './watermark-preview';
+import { PreviewMark, StampPreview } from '../../shared/stamp-preview/stamp-preview';
 
 type Kind = 'text' | 'image';
 type Angle = '0' | '45' | '-45';
@@ -33,7 +33,7 @@ const AVERAGE_CHAR_WIDTH = 0.62;
     RangeField,
     SinglePdfWorkspace,
     ToolPage,
-    WatermarkPreview,
+    StampPreview,
   ],
   templateUrl: './watermark.html',
 })

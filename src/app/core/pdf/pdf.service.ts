@@ -4,6 +4,7 @@ import { PageRange } from './page-ranges';
 import { PdfToolError } from './pdf-errors';
 import { ImagesToPdfOptions } from './ops/images-to-pdf';
 import { NamedPdf, ProgressFn } from './ops/load';
+import { PageNumberOptions } from './ops/page-numbers';
 import { Watermark } from './ops/watermark';
 import { PdfTask, PdfWorkerRequest, PdfWorkerResponse } from './pdf-worker-protocol';
 
@@ -89,6 +90,19 @@ export class PdfService {
     const named = await toNamed(file);
     const inputs = watermark.kind === 'image' ? [named, watermark.image] : [named];
     return this.run({ type: 'watermark', file: named, watermark }, inputs, onProgress);
+  }
+
+  async pageNumbers(
+    file: File,
+    options: PageNumberOptions,
+    onProgress?: ProgressFn,
+  ): Promise<OutputFile> {
+    const named = await toNamed(file);
+    return this.run(
+      { type: 'page-numbers', file: named, options: { ...options } },
+      [named],
+      onProgress,
+    );
   }
 
   /** Bundles finished files into one zip. */

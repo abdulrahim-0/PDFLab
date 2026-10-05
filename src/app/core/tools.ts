@@ -71,4 +71,12 @@ export const TOOLS: readonly ToolDefinition[] = [
     icon: 'watermark',
     loadComponent: () => import('../features/watermark/watermark').then((m) => m.Watermark),
   },
+  {
+    id: 'page-numbers',
+    path: 'add-page-numbers',
+    title: 'Add Page Numbers',
+    description: 'Number your pages, with the position, style and starting number you want.',
+    icon: 'page-numbers',
+    loadComponent: () => import('../features/page-numbers/page-numbers').then((m) => m.PageNumbers),
+  },
 ];

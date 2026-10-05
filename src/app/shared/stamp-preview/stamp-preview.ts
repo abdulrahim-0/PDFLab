@@ -1,7 +1,7 @@
 import { Component, computed, effect, inject, input, signal } from '@angular/core';
 import { BoxPosition, boxCenter, Point, tileCenters } from '../../core/pdf/placement';
 import { PdfRenderService } from '../../core/pdf/pdf-render.service';
-import { PdfThumbnail } from '../../shared/pdf-thumbnail/pdf-thumbnail';
+import { PdfThumbnail } from '../pdf-thumbnail/pdf-thumbnail';
 
 export interface PreviewMark {
   /** Text to show, or an image URL. */
@@ -11,6 +11,7 @@ export interface PreviewMark {
   size: { width: number; height: number } | { fraction: number; ratio: number };
   fontSize?: number;
   color?: string;
+  bold?: boolean;
   opacity: number;
   angle: number;
   position: BoxPosition;
@@ -18,11 +19,10 @@ export interface PreviewMark {
 }
 
 const PREVIEW_WIDTH = 280;
-const MARGIN = 36;
 
-/** An approximate, live preview of a watermark on the first page. */
+/** An approximate, live preview of a stamp (watermark, page number…) on one page. */
 @Component({
-  selector: 'app-watermark-preview',
+  selector: 'app-stamp-preview',
   imports: [PdfThumbnail],
   host: { class: 'block' },
   template: `
@@ -31,12 +31,13 @@ const MARGIN = 36;
         <div class="relative overflow-hidden rounded-md shadow-md" aria-hidden="true">
           <app-pdf-thumbnail
             [file]="file()"
+            [page]="page()"
             [width]="previewWidth"
             [aspectRatio]="size.width + ' / ' + size.height"
           />
           @for (center of centers(); track $index) {
             <div
-              class="watermark-mark pointer-events-none absolute whitespace-nowrap"
+              class="stamp-mark pointer-events-none absolute whitespace-nowrap"
               [style.left.px]="center.x * scale()"
               [style.bottom.px]="center.y * scale()"
               [style.opacity]="mark().opacity"
@@ -46,7 +47,8 @@ const MARGIN = 36;
                 <img [src]="url" alt="" [style.width.px]="box().width * scale()" />
               } @else {
                 <span
-                  class="block leading-none font-bold"
+                  class="block leading-none"
+                  [class.font-bold]="mark().bold ?? true"
                   [style.font-family]="'Helvetica, Arial, sans-serif'"
                   [style.font-size.px]="(mark().fontSize ?? 12) * scale()"
                   [style.color]="mark().color"
@@ -56,16 +58,19 @@ const MARGIN = 36;
             </div>
           }
         </div>
-        <figcaption class="text-xs text-secondary">Preview of page 1</figcaption>
+        <figcaption class="text-xs text-secondary">Preview of page {{ page() }}</figcaption>
       </figure>
     }
   `,
 })
-export class WatermarkPreview {
+export class StampPreview {
   private readonly renderer = inject(PdfRenderService);
 
   readonly file = input.required<File>();
   readonly mark = input.required<PreviewMark>();
+  readonly page = input(1);
+  /** Distance from the page edge, in points, for non-tiled marks. */
+  readonly margin = input(36);
 
   protected readonly previewWidth = PREVIEW_WIDTH;
   protected readonly pageSize = signal<{ width: number; height: number } | null>(null);
@@ -90,14 +95,14 @@ export class WatermarkPreview {
     }
     return tile
       ? tileCenters(size.width, size.height, width, height, angle)
-      : [boxCenter(size.width, size.height, width, height, angle, position, MARGIN)];
+      : [boxCenter(size.width, size.height, width, height, angle, position, this.margin())];
   });
 
   constructor() {
     effect((onCleanup) => {
       let cancelled = false;
       onCleanup(() => (cancelled = true));
-      this.renderer.getPageSize(this.file()).then(
+      this.renderer.getPageSize(this.file(), this.page()).then(
         (size) => !cancelled && this.pageSize.set(size),
         () => !cancelled && this.pageSize.set(null),
       );

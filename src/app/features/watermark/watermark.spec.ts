@@ -31,7 +31,7 @@ describe('Watermark', () => {
     dropFiles(element, [pdfFile('memo.pdf')]);
     await vi.waitFor(() => {
       fixture.detectChanges();
-      expect(element.querySelector('app-watermark-preview figure')).not.toBeNull();
+      expect(element.querySelector('app-stamp-preview figure')).not.toBeNull();
     });
     return { fixture, element };
   }
@@ -48,7 +48,7 @@ describe('Watermark', () => {
 
   it('previews the default text watermark in the center', async () => {
     const { element } = await setup();
-    const mark = element.querySelector<HTMLElement>('app-watermark-preview .watermark-mark')!;
+    const mark = element.querySelector<HTMLElement>('app-stamp-preview .stamp-mark')!;
     expect(mark.textContent?.trim()).toBe('CONFIDENTIAL');
     // 600pt page shown 280px wide: the center is at 140px.
     expect(mark.style.left).toBe('140px');
@@ -81,9 +81,7 @@ describe('Watermark', () => {
     element.querySelector<HTMLInputElement>('input[type=checkbox]')!.click();
     await fixture.whenStable();
 
-    expect(
-      element.querySelectorAll('app-watermark-preview .watermark-mark').length,
-    ).toBeGreaterThan(1);
+    expect(element.querySelectorAll('app-stamp-preview .stamp-mark').length).toBeGreaterThan(1);
     expect(element.querySelector('app-position-picker fieldset')!.hasAttribute('disabled')).toBe(
       true,
     );

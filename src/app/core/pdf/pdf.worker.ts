@@ -6,6 +6,7 @@ import { imagesToPdf } from './ops/images-to-pdf';
 import { ProgressFn } from './ops/load';
 import { mergePdfs } from './ops/merge';
 import { organizePdf } from './ops/organize';
+import { addPageNumbers } from './ops/page-numbers';
 import { rotatePdf } from './ops/rotate';
 import { splitPdf } from './ops/split';
 import { watermarkPdf } from './ops/watermark';
@@ -54,6 +55,8 @@ async function runTask(task: PdfTask, onProgress: ProgressFn): Promise<OutputByt
       return zipOutputs(task.files, task.filename, onProgress);
     case 'watermark':
       return watermarkPdf(task.file, task.watermark, onProgress);
+    case 'page-numbers':
+      return addPageNumbers(task.file, task.options, onProgress);
   }
 }
 
