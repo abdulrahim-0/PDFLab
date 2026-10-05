@@ -1,6 +1,7 @@
 import { OutputBytes } from '../files/output-file';
 import { ImagesToPdfOptions, NamedImage } from './ops/images-to-pdf';
 import { NamedPdf } from './ops/load';
+import { Watermark } from './ops/watermark';
 import { PageRange } from './page-ranges';
 import { PdfErrorCode } from './pdf-errors';
 
@@ -10,7 +11,8 @@ export type PdfTask =
   | { type: 'rotate'; file: NamedPdf; rotations: Record<number, number> }
   | { type: 'organize'; file: NamedPdf; order: number[] }
   | { type: 'images-to-pdf'; images: NamedImage[]; options: ImagesToPdfOptions }
-  | { type: 'zip'; files: OutputBytes[]; filename: string };
+  | { type: 'zip'; files: OutputBytes[]; filename: string }
+  | { type: 'watermark'; file: NamedPdf; watermark: Watermark };
 
 export interface PdfWorkerRequest {
   id: number;

@@ -4,6 +4,7 @@ import { PageRange } from './page-ranges';
 import { PdfToolError } from './pdf-errors';
 import { ImagesToPdfOptions } from './ops/images-to-pdf';
 import { NamedPdf, ProgressFn } from './ops/load';
+import { Watermark } from './ops/watermark';
 import { PdfTask, PdfWorkerRequest, PdfWorkerResponse } from './pdf-worker-protocol';
 
 export const PDF_WORKER_FACTORY = new InjectionToken<() => Worker>('PDF_WORKER_FACTORY', {
@@ -81,6 +82,13 @@ export class PdfService {
       named,
       onProgress,
     );
+  }
+
+  /** Stamps a text or image watermark on every page. */
+  async watermark(file: File, watermark: Watermark, onProgress?: ProgressFn): Promise<OutputFile> {
+    const named = await toNamed(file);
+    const inputs = watermark.kind === 'image' ? [named, watermark.image] : [named];
+    return this.run({ type: 'watermark', file: named, watermark }, inputs, onProgress);
   }
 
   /** Bundles finished files into one zip. */

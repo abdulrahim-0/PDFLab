@@ -1,0 +1,153 @@
+<app-tool-page
+  title="Add Watermark"
+  description="Stamp text or an image across every page, at the angle and spot you choose."
+  processLabel="Add watermark"
+  processingLabel="Adding watermark…"
+  [processHint]="
+    source.unreadable()
+      ? 'This PDF can’t be watermarked.'
+      : kind() === 'text'
+        ? 'Enter the watermark text.'
+        : 'Choose an image for the watermark.'
+  "
+  [run]="run"
+  [hasFiles]="!!source.item()"
+  [canProcess]="ready()"
+  (process)="apply()"
+  (startOver)="startOver()"
+>
+  <app-file-dropzone
+    toolUpload
+    label="Select PDF file"
+    [multiple]="false"
+    (filesAdded)="add($event)"
+  />
+
+  <app-single-pdf-workspace [source]="source" (remove)="startOver()">
+    @if (source.file(); as file) {
+      @if (previewMark(); as mark) {
+        <app-watermark-preview [file]="file" [mark]="mark" />
+      } @else {
+        <p class="text-center text-sm text-secondary">
+          {{ kind() === 'text' ? 'Type some text' : 'Choose an image' }} to see a preview.
+        </p>
+      }
+    }
+  </app-single-pdf-workspace>
+
+  <div toolOptions class="flex flex-col gap-4">
+    <app-option-group
+      legend="Watermark type"
+      name="watermark-kind"
+      [columns]="2"
+      [options]="kinds"
+      [value]="kind()"
+      (valueChange)="set(kind.set, $event)"
+    />
+
+    @if (kind() === 'text') {
+      <div>
+        <label for="watermark-text" class="mb-1.5 block text-sm font-semibold">Text</label>
+        <input
+          id="watermark-text"
+          type="text"
+          maxlength="80"
+          class="h-10 w-full rounded-lg border border-outline-variant bg-surface px-3 text-sm"
+          [value]="text()"
+          (input)="set(text.set, $any($event.target).value)"
+        />
+        @if (needsRaster() && text().trim()) {
+          <p class="mt-1.5 text-xs text-secondary">
+            This script isn’t in the built-in PDF font, so the text is added as a sharp image.
+          </p>
+        }
+      </div>
+      <div class="flex items-end gap-3">
+        <app-range-field
+          class="flex-1"
+          label="Font size"
+          unit=" pt"
+          [min]="12"
+          [max]="160"
+          [value]="fontSize()"
+          (valueChange)="set(fontSize.set, $event)"
+        />
+        <label class="flex flex-col items-center gap-1 text-xs text-secondary">
+          Colour
+          <input
+            type="color"
+            class="h-9 w-12 cursor-pointer rounded border border-outline-variant bg-surface"
+            [value]="color()"
+            (input)="set(color.set, $any($event.target).value)"
+          />
+        </label>
+      </div>
+    } @else {
+      @if (image(); as image) {
+        <div
+          class="flex items-center justify-between gap-2 rounded-lg bg-surface-container-low p-3 text-sm"
+        >
+          <span class="truncate" [title]="image.name">{{ image.name }}</span>
+          <button
+            type="button"
+            class="btn btn-secondary h-8 px-3"
+            (click)="set(this.image.set, null)"
+          >
+            Change
+          </button>
+        </div>
+      } @else {
+        <app-file-dropzone
+          kind="image"
+          label="Choose image"
+          [compact]="true"
+          [multiple]="false"
+          [maxFileBytes]="20 * 1024 * 1024"
+          (filesAdded)="setImage($event)"
+        />
+      }
+      <app-range-field
+        label="Size"
+        unit="% of page width"
+        [min]="5"
+        [max]="100"
+        [value]="imageSize()"
+        (valueChange)="set(imageSize.set, $event)"
+      />
+    }
+
+    <app-range-field
+      label="Opacity"
+      unit="%"
+      [min]="5"
+      [max]="100"
+      [step]="5"
+      [value]="opacity()"
+      (valueChange)="set(opacity.set, $event)"
+    />
+    <app-option-group
+      legend="Angle"
+      name="watermark-angle"
+      [options]="angles"
+      [value]="angle()"
+      (valueChange)="set(angle.set, $event)"
+    />
+    <div class="flex items-start gap-4">
+      <app-position-picker
+        name="watermark-position"
+        [value]="position()"
+        [disabled]="tile()"
+        (valueChange)="set(position.set, $event)"
+      />
+      <label class="mt-7 flex cursor-pointer items-start gap-2 text-sm">
+        <input
+          type="checkbox"
+          class="mt-0.5 size-4 accent-primary-container"
+          [checked]="tile()"
+          (change)="set(tile.set, $any($event.target).checked)"
+        />
+        Repeat across the page
+      </label>
+    </div>
+  </div>
+</app-tool-page>

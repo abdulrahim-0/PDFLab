@@ -8,6 +8,7 @@ import { mergePdfs } from './ops/merge';
 import { organizePdf } from './ops/organize';
 import { rotatePdf } from './ops/rotate';
 import { splitPdf } from './ops/split';
+import { watermarkPdf } from './ops/watermark';
 import { PdfToolError } from './pdf-errors';
 import { PdfTask, PdfWorkerRequest, PdfWorkerResponse } from './pdf-worker-protocol';
 
@@ -51,6 +52,8 @@ async function runTask(task: PdfTask, onProgress: ProgressFn): Promise<OutputByt
       return imagesToPdf(task.images, task.options, onProgress);
     case 'zip':
       return zipOutputs(task.files, task.filename, onProgress);
+    case 'watermark':
+      return watermarkPdf(task.file, task.watermark, onProgress);
   }
 }
 

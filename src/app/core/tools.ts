@@ -63,4 +63,12 @@ export const TOOLS: readonly ToolDefinition[] = [
     loadComponent: () =>
       import('../features/pdf-to-images/pdf-to-images').then((m) => m.PdfToImages),
   },
+  {
+    id: 'watermark',
+    path: 'add-watermark',
+    title: 'Add Watermark',
+    description: 'Stamp text or an image over your pages, at any angle or position.',
+    icon: 'watermark',
+    loadComponent: () => import('../features/watermark/watermark').then((m) => m.Watermark),
+  },
 ];

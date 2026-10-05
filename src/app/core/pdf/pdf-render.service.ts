@@ -35,6 +35,13 @@ export class PdfRenderService {
     return doc.numPages;
   }
 
+  /** A page's size in points as displayed, with its rotation applied. */
+  async getPageSize(file: File, pageNumber = 1): Promise<{ width: number; height: number }> {
+    const doc = await this.open(file);
+    const { width, height } = (await doc.getPage(pageNumber)).getViewport({ scale: 1 });
+    return { width, height };
+  }
+
   /** Returns an object URL for a JPEG of the page, `pixelWidth` pixels wide. */
   renderThumbnail(file: File, pageNumber: number, pixelWidth: number): Promise<string> {
     let cache = this.thumbnails.get(file);

@@ -22,7 +22,7 @@ type ThumbnailState =
     class:
       'relative flex items-center justify-center overflow-hidden rounded-md border border-outline-variant bg-white',
     '[style.width.px]': 'width()',
-    '[style.aspect-ratio]': '"1 / 1.3"',
+    '[style.aspect-ratio]': 'aspectRatio()',
   },
   template: `
     @switch (state().status) {
@@ -48,6 +48,8 @@ export class PdfThumbnail {
   /** Display width in CSS pixels. */
   readonly width = input(64);
   readonly alt = input('');
+  /** CSS aspect ratio of the box; pass the page's own ratio to fill it exactly. */
+  readonly aspectRatio = input('1 / 1.3');
 
   protected readonly state = signal<ThumbnailState>({ status: 'loading' });
   private readonly visible = signal(false);
