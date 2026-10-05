@@ -50,10 +50,7 @@ export class Merge {
 
   protected merge(): Promise<void> {
     const files = this.items().map((item) => item.file);
-    return this.run.run(async (onProgress) => ({
-      blob: await this.pdf.merge(files, onProgress),
-      filename: 'merged.pdf',
-    }));
+    return this.run.run((onProgress) => this.pdf.merge(files, onProgress));
   }
 
   protected startOver(): void {

@@ -64,7 +64,7 @@ describe('Merge', () => {
     const { fixture, element } = await setup('a.pdf', 'b.pdf', 'c.pdf');
     merge.mockImplementation(async (_files, onProgress) => {
       onProgress?.(1);
-      return new Blob(['merged'], { type: 'application/pdf' });
+      return { filename: 'merged.pdf', blob: new Blob(['merged'], { type: 'application/pdf' }) };
     });
 
     button(element, 'Move c.pdf up').click();

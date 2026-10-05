@@ -1,4 +1,6 @@
 import { DestroyRef, inject, Injectable, InjectionToken } from '@angular/core';
+import { OutputBytes, OutputFile, toOutputFile } from '../files/output-file';
+import { PageRange } from './page-ranges';
 import { PdfToolError } from './pdf-errors';
 import { NamedPdf, ProgressFn } from './pdf-ops';
 import { PdfTask, PdfWorkerRequest, PdfWorkerResponse } from './pdf-worker-protocol';
@@ -9,7 +11,7 @@ export const PDF_WORKER_FACTORY = new InjectionToken<() => Worker>('PDF_WORKER_F
 });
 
 interface PendingTask {
-  resolve: (data: Uint8Array) => void;
+  resolve: (output: OutputBytes) => void;
   reject: (error: Error) => void;
   onProgress?: ProgressFn;
 }
@@ -26,20 +28,32 @@ export class PdfService {
     inject(DestroyRef).onDestroy(() => this.terminate());
   }
 
-  async merge(files: readonly File[], onProgress?: ProgressFn): Promise<Blob> {
+  /** Combines the files, in order, into `merged.pdf`. */
+  async merge(files: readonly File[], onProgress?: ProgressFn): Promise<OutputFile> {
     const named = await toNamedPdfs(files);
-    const bytes = await this.run({ type: 'merge', files: named }, onProgress);
-    return new Blob([bytes as Uint8Array<ArrayBuffer>], { type: 'application/pdf' });
+    return this.run({ type: 'merge', files: named }, onProgress);
   }
 
-  private run(task: PdfTask, onProgress?: ProgressFn): Promise<Uint8Array> {
+  /** One PDF per range; several results come back as a single zip. */
+  async split(
+    file: File,
+    ranges: readonly PageRange[],
+    onProgress?: ProgressFn,
+  ): Promise<OutputFile> {
+    const [named] = await toNamedPdfs([file]);
+    return this.run({ type: 'split', file: named, ranges: [...ranges] }, onProgress);
+  }
+
+  private async run(task: PdfTask, onProgress?: ProgressFn): Promise<OutputFile> {
     const worker = this.getWorker();
     const id = this.nextId++;
-    const transfer = task.files.map((file) => file.data as ArrayBuffer);
-    return new Promise((resolve, reject) => {
+    const files = task.type === 'merge' ? task.files : [task.file];
+    const transfer = files.map((file) => file.data as ArrayBuffer);
+    const output = await new Promise<OutputBytes>((resolve, reject) => {
       this.pending.set(id, { resolve, reject, onProgress });
       worker.postMessage({ id, task } satisfies PdfWorkerRequest, transfer);
     });
+    return toOutputFile(output);
   }
 
   private getWorker(): Worker {
@@ -69,7 +83,7 @@ export class PdfService {
         return;
       case 'result':
         this.pending.delete(message.id);
-        task.resolve(message.data);
+        task.resolve(message.output);
         return;
       case 'error':
         this.pending.delete(message.id);

@@ -21,4 +21,12 @@ export const TOOLS: readonly ToolDefinition[] = [
     icon: 'merge',
     loadComponent: () => import('../features/merge/merge').then((m) => m.Merge),
   },
+  {
+    id: 'split',
+    path: 'split-pdf',
+    title: 'Split PDF',
+    description: 'Pull out page ranges as separate PDFs, or save every page as its own file.',
+    icon: 'split',
+    loadComponent: () => import('../features/split/split').then((m) => m.Split),
+  },
 ];

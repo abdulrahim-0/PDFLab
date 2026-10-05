@@ -46,7 +46,7 @@
             ],
             "styles": ["node_modules/@fontsource-variable/inter/index.css", "src/styles.css"],
             "webWorkerTsConfig": "tsconfig.worker.json",
-            "allowedCommonJsDependencies": ["pako"]
+            "allowedCommonJsDependencies": ["jszip", "pako"]
           },
           "configurations": {
             "production": {

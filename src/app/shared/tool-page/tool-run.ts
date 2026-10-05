@@ -1,12 +1,10 @@
 import { signal } from '@angular/core';
+import { OutputFile } from '../../core/files/output-file';
 import { userMessage } from '../../core/pdf/pdf-errors';
 
 export type ToolStatus = 'idle' | 'processing' | 'done' | 'error';
 
-export interface ToolResult {
-  blob: Blob;
-  filename: string;
-}
+export type ToolResult = OutputFile;
 
 export type ToolTask = (onProgress: (fraction: number) => void) => Promise<ToolResult>;
 

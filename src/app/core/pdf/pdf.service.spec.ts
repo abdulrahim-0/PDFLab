@@ -42,21 +42,40 @@ describe('PdfService', () => {
     return worker.requests.at(-1)!;
   }
 
-  it('sends files to the worker and resolves with a PDF blob', async () => {
+  it('sends files to the worker and resolves with the output file', async () => {
     const progress: number[] = [];
     const result = service.merge([pdfFile('a.pdf'), pdfFile('b.pdf')], (p) => progress.push(p));
 
     const { id, task } = await nextRequest();
-    expect(task.type).toBe('merge');
-    expect(task.files.map((f) => f.name)).toEqual(['a.pdf', 'b.pdf']);
+    expect(task).toMatchObject({ type: 'merge', files: [{ name: 'a.pdf' }, { name: 'b.pdf' }] });
 
     worker.respond({ id, kind: 'progress', value: 0.5 });
-    worker.respond({ id, kind: 'result', data: new Uint8Array([1, 2, 3]) });
+    worker.respond({
+      id,
+      kind: 'result',
+      output: {
+        filename: 'merged.pdf',
+        mimeType: 'application/pdf',
+        data: new Uint8Array([1, 2, 3]),
+      },
+    });
 
-    const blob = await result;
+    const { filename, blob } = await result;
+    expect(filename).toBe('merged.pdf');
     expect(blob.type).toBe('application/pdf');
     expect(blob.size).toBe(3);
     expect(progress).toEqual([0.5]);
+  });
+
+  it('sends split requests with the page ranges', async () => {
+    void service.split(pdfFile('report.pdf'), [{ start: 1, end: 2 }]).catch(() => undefined);
+
+    const { task } = await nextRequest();
+    expect(task).toMatchObject({
+      type: 'split',
+      file: { name: 'report.pdf' },
+      ranges: [{ start: 1, end: 2 }],
+    });
   });
 
   it('turns worker errors into PdfToolErrors', async () => {

@@ -1,4 +1,6 @@
 import { PDFDocument } from 'pdf-lib';
+import { baseName, OutputBytes } from '../files/output-file';
+import { formatRange, PageRange } from './page-ranges';
 import { corruptError, encryptedError, PdfToolError } from './pdf-errors';
 
 /**
@@ -57,4 +59,43 @@ export async function mergePdfs(
   const bytes = await merged.save();
   onProgress?.(1);
   return bytes;
+}
+
+/** Creates one PDF per range, named after the source file and the pages it holds. */
+export async function splitPdf(
+  file: NamedPdf,
+  ranges: readonly PageRange[],
+  onProgress?: ProgressFn,
+): Promise<OutputBytes[]> {
+  if (ranges.length === 0) {
+    throw new PdfToolError('invalid-input', 'Choose at least one page range.');
+  }
+  const source = await loadPdf(file);
+  const pageCount = source.getPageCount();
+  const base = baseName(file.name);
+  const outputs: OutputBytes[] = [];
+
+  for (const [index, range] of ranges.entries()) {
+    if (range.start < 1 || range.end > pageCount || range.end < range.start) {
+      throw new PdfToolError('invalid-input', `Pages ${formatRange(range)} aren’t in this PDF.`);
+    }
+    const part = await PDFDocument.create();
+    part.setProducer('PDFLab');
+    part.setCreator('PDFLab');
+    const indices = Array.from(
+      { length: range.end - range.start + 1 },
+      (_, i) => range.start - 1 + i,
+    );
+    for (const page of await part.copyPages(source, indices)) {
+      part.addPage(page);
+    }
+    const label = range.start === range.end ? `page-${range.start}` : `pages-${formatRange(range)}`;
+    outputs.push({
+      filename: `${base}-${label}.pdf`,
+      mimeType: 'application/pdf',
+      data: await part.save(),
+    });
+    onProgress?.((index + 1) / ranges.length);
+  }
+  return outputs;
 }

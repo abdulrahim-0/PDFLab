@@ -2,6 +2,7 @@ import { Component, input } from '@angular/core';
 
 export type IconName =
   | 'merge'
+  | 'split'
   | 'arrow'
   | 'lock'
   | 'upload'
@@ -39,6 +40,12 @@ export type IconName =
         @case ('lock') {
           <rect x="5" y="10" width="14" height="11" rx="2" />
           <path d="M8 10V7a4 4 0 0 1 8 0v3m-4 5v2" />
+        }
+        @case ('split') {
+          <path
+            d="M8 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h2M16 3h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-2"
+          />
+          <path d="M12 3v3m0 4v4m0 4v3" />
         }
         @case ('upload') {
           <path d="M12 16V4m-5 5 5-5 5 5M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" />
