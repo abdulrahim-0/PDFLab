@@ -3,6 +3,7 @@ import { CompressionLevel } from './ops/compress';
 import { ImagesToPdfOptions, NamedImage } from './ops/images-to-pdf';
 import { NamedPdf } from './ops/load';
 import { PageNumberOptions } from './ops/page-numbers';
+import { ProtectOptions } from './ops/security';
 import { Watermark } from './ops/watermark';
 import { PageRange } from './page-ranges';
 import { PdfErrorCode } from './pdf-errors';
@@ -16,7 +17,9 @@ export type PdfTask =
   | { type: 'zip'; files: OutputBytes[]; filename: string }
   | { type: 'watermark'; file: NamedPdf; watermark: Watermark }
   | { type: 'page-numbers'; file: NamedPdf; options: PageNumberOptions }
-  | { type: 'compress'; file: NamedPdf; level: CompressionLevel };
+  | { type: 'compress'; file: NamedPdf; level: CompressionLevel }
+  | { type: 'protect'; file: NamedPdf; options: ProtectOptions }
+  | { type: 'unlock'; file: NamedPdf; password: string };
 
 export interface PdfWorkerRequest {
   id: number;

@@ -1,0 +1,86 @@
+<app-tool-page
+  title="Protect PDF"
+  description="Add a password so only people who know it can open the file."
+  processLabel="Protect PDF"
+  processingLabel="Encrypting…"
+  [processHint]="
+    source.unreadable() ? 'This PDF can’t be protected.' : 'Enter the password twice to continue.'
+  "
+  [run]="run"
+  [hasFiles]="!!source.item()"
+  [canProcess]="ready()"
+  (process)="protect()"
+  (startOver)="startOver()"
+>
+  <app-file-dropzone
+    toolUpload
+    label="Select PDF file"
+    [multiple]="false"
+    (filesAdded)="add($event)"
+  />
+
+  <app-single-pdf-workspace
+    [source]="source"
+    encryptedHint="This PDF already has a password. Unlock it first if you want to change it."
+    (remove)="startOver()"
+  >
+    <section class="rounded-xl bg-surface-container-lowest p-5 text-sm shadow-sm">
+      <h2 class="mb-2 font-semibold">How protection works</h2>
+      <ul class="flex list-disc flex-col gap-1.5 pl-5 text-secondary">
+        <li>The file is encrypted with AES-256, which works in all current PDF readers.</li>
+        <li>
+          There’s no way to recover a forgotten password, so keep it somewhere safe. PDFLab never
+          sees or stores it.
+        </li>
+        <li>
+          Printing, copying and editing restrictions are respected by most readers (like Acrobat),
+          but some apps ignore them. Only the open password truly keeps people out.
+        </li>
+      </ul>
+    </section>
+  </app-single-pdf-workspace>
+
+  <form toolOptions class="flex flex-col gap-4" (submit)="$event.preventDefault()">
+    <app-password-field
+      label="Password"
+      autocomplete="new-password"
+      [value]="password()"
+      [hint]="passwordHint()"
+      (valueChange)="set(password.set, $event)"
+    />
+    <app-password-field
+      label="Repeat password"
+      autocomplete="new-password"
+      [value]="confirm()"
+      [error]="confirmError()"
+      (valueChange)="set(confirm.set, $event)"
+    />
+    <fieldset>
+      <legend class="mb-2 text-sm font-semibold">Permissions</legend>
+      <div class="flex flex-col gap-2">
+        @for (option of permissionOptions; track option.key) {
+          <label class="flex cursor-pointer items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              class="size-4 accent-primary-container"
+              [checked]="permissions()[option.key]"
+              (change)="togglePermission(option.key, $any($event.target).checked)"
+            />
+            {{ option.label }}
+          </label>
+        }
+      </div>
+    </fieldset>
+    @if (restricted()) {
+      <app-password-field
+        label="Permissions password (optional)"
+        autocomplete="new-password"
+        placeholder="Leave empty to generate one"
+        hint="Needed to change the restrictions later."
+        [value]="ownerPassword()"
+        [error]="ownerError()"
+        (valueChange)="set(ownerPassword.set, $event)"
+      />
+    }
+  </form>
+</app-tool-page>

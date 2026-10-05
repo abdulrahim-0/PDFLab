@@ -87,4 +87,12 @@ export const TOOLS: readonly ToolDefinition[] = [
     icon: 'page-numbers',
     loadComponent: () => import('../features/page-numbers/page-numbers').then((m) => m.PageNumbers),
   },
+  {
+    id: 'protect',
+    path: 'protect-pdf',
+    title: 'Protect PDF',
+    description: 'Lock a PDF with a password using strong AES-256 encryption.',
+    icon: 'lock',
+    loadComponent: () => import('../features/protect/protect').then((m) => m.Protect),
+  },
 ];

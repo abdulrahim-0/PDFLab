@@ -6,6 +6,7 @@ import { CompressionLevel } from './ops/compress';
 import { ImagesToPdfOptions } from './ops/images-to-pdf';
 import { NamedPdf, ProgressFn } from './ops/load';
 import { PageNumberOptions } from './ops/page-numbers';
+import { ProtectOptions } from './ops/security';
 import { Watermark } from './ops/watermark';
 import { PdfTask, PdfWorkerRequest, PdfWorkerResponse } from './pdf-worker-protocol';
 
@@ -114,6 +115,26 @@ export class PdfService {
   ): Promise<OutputFile> {
     const named = await toNamed(file);
     return this.run({ type: 'compress', file: named, level }, [named], onProgress);
+  }
+
+  /** Encrypts with AES-256. */
+  async protect(file: File, options: ProtectOptions, onProgress?: ProgressFn): Promise<OutputFile> {
+    const named = await toNamed(file);
+    return this.run(
+      {
+        type: 'protect',
+        file: named,
+        options: { ...options, permissions: { ...options.permissions } },
+      },
+      [named],
+      onProgress,
+    );
+  }
+
+  /** Removes encryption; `password` may be empty for files that only restrict permissions. */
+  async unlock(file: File, password: string, onProgress?: ProgressFn): Promise<OutputFile> {
+    const named = await toNamed(file);
+    return this.run({ type: 'unlock', file: named, password }, [named], onProgress);
   }
 
   /** Bundles finished files into one zip. */

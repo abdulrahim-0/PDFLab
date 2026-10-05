@@ -9,6 +9,7 @@ import { mergePdfs } from './ops/merge';
 import { organizePdf } from './ops/organize';
 import { addPageNumbers } from './ops/page-numbers';
 import { rotatePdf } from './ops/rotate';
+import { protectPdf, unlockPdf } from './ops/security';
 import { splitPdf } from './ops/split';
 import { watermarkPdf } from './ops/watermark';
 import { PdfToolError } from './pdf-errors';
@@ -60,6 +61,10 @@ async function runTask(task: PdfTask, onProgress: ProgressFn): Promise<OutputByt
       return addPageNumbers(task.file, task.options, onProgress);
     case 'compress':
       return compressPdf(task.file, task.level, browserJpegEncoder, onProgress);
+    case 'protect':
+      return protectPdf(task.file, task.options, onProgress);
+    case 'unlock':
+      return unlockPdf(task.file, task.password, onProgress);
   }
 }
 
