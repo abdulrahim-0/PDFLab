@@ -43,6 +43,7 @@ describe('ImagesToPdf', () => {
     element.querySelector<HTMLInputElement>('input[name=page-size][value=letter]')!.click();
     element.querySelector<HTMLInputElement>('input[name=orientation][value=landscape]')!.click();
     element.querySelector<HTMLInputElement>('input[name=margin][value=none]')!.click();
+    element.querySelector<HTMLInputElement>('input[name=image-quality][value=strong]')!.click();
     await fixture.whenStable();
 
     clickButton(element, 'Convert to PDF');
@@ -50,7 +51,19 @@ describe('ImagesToPdf', () => {
 
     const [files, options] = imagesToPdf.mock.calls[0];
     expect(files.map((f) => f.name)).toEqual(['b.jpg', 'a.jpg']);
-    expect(options).toEqual({ pageSize: 'letter', orientation: 'landscape', margin: 'none' });
+    expect(options).toEqual({
+      pageSize: 'letter',
+      orientation: 'landscape',
+      margin: 'none',
+      quality: 'strong',
+    });
+  });
+
+  it('compresses images by default', async () => {
+    const { fixture, element } = await setup('a.jpg');
+    clickButton(element, 'Convert to PDF');
+    await fixture.whenStable();
+    expect(imagesToPdf.mock.calls[0][1].quality).toBe('balanced');
   });
 
   it('hides orientation when pages fit the image', async () => {

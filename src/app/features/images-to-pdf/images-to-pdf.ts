@@ -1,5 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import type {
+  ImageQuality,
   ImagesToPdfOptions,
   Margin,
   Orientation,
@@ -29,6 +30,7 @@ export class ImagesToPdf {
   protected readonly pageSize = signal<PageSize>('a4');
   protected readonly orientation = signal<Orientation>('auto');
   protected readonly margin = signal<Margin>('small');
+  protected readonly quality = signal<ImageQuality>('balanced');
 
   protected readonly pageSizes = [
     { value: 'a4' as const, label: 'A4' },
@@ -44,6 +46,13 @@ export class ImagesToPdf {
     { value: 'none' as const, label: 'None' },
     { value: 'small' as const, label: 'Small' },
     { value: 'large' as const, label: 'Large' },
+  ];
+
+  protected readonly qualities = [
+    { value: 'original' as const, label: 'Original', hint: 'Largest file' },
+    { value: 'light' as const, label: 'High', hint: 'Best quality' },
+    { value: 'balanced' as const, label: 'Medium', hint: 'Recommended' },
+    { value: 'strong' as const, label: 'Low', hint: 'Smallest file' },
   ];
 
   protected add(files: File[]): void {
@@ -71,6 +80,7 @@ export class ImagesToPdf {
       pageSize: this.pageSize(),
       orientation: this.orientation(),
       margin: this.margin(),
+      quality: this.quality(),
     };
     return this.run.run((onProgress) => this.pdf.imagesToPdf(files, options, onProgress));
   }

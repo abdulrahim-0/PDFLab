@@ -14,16 +14,24 @@ export const COMPRESSION_SETTINGS: Record<CompressionLevel, { quality: number; m
   };
 
 /**
- * Re-encodes a JPEG. Returns null if it can't (e.g. unsupported in this
+ * Re-encodes an image (a JPEG unless `type` says otherwise) as a JPEG, scaled
+ * down to fit `maxSide`. Returns null if it can't (e.g. unsupported in this
  * browser). Kept as a parameter so tests can supply a fake.
  */
 export type JpegEncoder = (
-  jpeg: Uint8Array,
-  options: { quality: number; maxSide: number },
-) => Promise<{ data: Uint8Array; width: number; height: number } | null>;
+  image: Uint8Array,
+  options: { quality: number; maxSide: number; type?: 'jpeg' | 'png' },
+) => Promise<{
+  data: Uint8Array;
+  width: number;
+  height: number;
+  /** Pixel size before scaling down. */
+  sourceWidth?: number;
+  sourceHeight?: number;
+} | null>;
 
 /** Only re-encode when it saves at least this much, to avoid needless quality loss. */
-const MIN_SAVING = 0.1;
+export const MIN_SAVING = 0.1;
 
 /**
  * Shrinks a PDF in the browser by re-compressing its JPEG photos and saving
@@ -149,13 +157,13 @@ function replaceJpeg(
   return PDFRawStream.of(dict, data);
 }
 
-/** Re-encodes JPEGs with the browser's decoder, in a worker (OffscreenCanvas). */
+/** Re-encodes images with the browser's decoder, in a worker (OffscreenCanvas). */
 export const browserJpegEncoder: JpegEncoder | null =
   typeof OffscreenCanvas === 'undefined' || typeof createImageBitmap === 'undefined'
     ? null
-    : async (jpeg, { quality, maxSide }) => {
+    : async (image, { quality, maxSide, type = 'jpeg' }) => {
         const bitmap = await createImageBitmap(
-          new Blob([jpeg as Uint8Array<ArrayBuffer>], { type: 'image/jpeg' }),
+          new Blob([image as Uint8Array<ArrayBuffer>], { type: `image/${type}` }),
           { imageOrientation: 'none' },
         );
         try {
@@ -167,9 +175,18 @@ export const browserJpegEncoder: JpegEncoder | null =
           if (!context) {
             return null;
           }
+          // JPEG has no transparency; see-through areas would otherwise turn black.
+          context.fillStyle = '#fff';
+          context.fillRect(0, 0, width, height);
           context.drawImage(bitmap, 0, 0, width, height);
           const blob = await canvas.convertToBlob({ type: 'image/jpeg', quality });
-          return { data: new Uint8Array(await blob.arrayBuffer()), width, height };
+          return {
+            data: new Uint8Array(await blob.arrayBuffer()),
+            width,
+            height,
+            sourceWidth: bitmap.width,
+            sourceHeight: bitmap.height,
+          };
         } finally {
           bitmap.close();
         }

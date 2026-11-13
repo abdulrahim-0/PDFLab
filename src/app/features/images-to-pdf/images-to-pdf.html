@@ -59,8 +59,20 @@
       [value]="margin()"
       (valueChange)="set(margin.set, $event)"
     />
+    <app-option-group
+      legend="Image quality"
+      name="image-quality"
+      [columns]="2"
+      [options]="qualities"
+      [value]="quality()"
+      (valueChange)="set(quality.set, $event)"
+    />
     <p class="text-xs text-secondary">
-      JPGs are added without re-compression, so photos keep their full quality.
+      @if (quality() === 'original') {
+        Images are added without re-compression, so they keep their full quality.
+      } @else {
+        Images are compressed, and very large ones scaled down, to keep the PDF small.
+      }
     </p>
   </div>
 </app-tool-page>
